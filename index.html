@@ -373,6 +373,16 @@ input[type=date], input[type=time] { min-height: 48px; }
 .chip.soft { background: color-mix(in srgb, var(--accent-2) 22%, transparent); color: var(--ink); }
 .ract { flex: none; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; color: var(--muted); transition: background .2s, color .2s, transform .15s; }
 .ract svg { width: 19px; height: 19px; }
+.ract.tmw { color: var(--accent-2); }
+@media (max-width: 380px) { .ract { width: 34px; } .row { gap: 8px; } }
+.sec .sec-act { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 999px; font-size: .74rem; font-weight: 900; letter-spacing: .02em; text-transform: none; color: var(--accent-2); background: color-mix(in srgb, var(--accent-2) 16%, transparent); }
+.sec .sec-act svg { width: 14px; height: 14px; }
+.row.moving { background: color-mix(in srgb, var(--accent-2) 14%, var(--surface)); }
+/* Rows slide sideways when they leave; never let that widen the page (phones would zoom out and scroll sideways). */
+.wrap { overflow-x: clip; }
+html, body { overflow-x: clip; }
+.tmw-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; color: var(--accent-2); }
+.tmw-btn svg { width: 18px; height: 18px; }
 .ract:active { transform: scale(.88); }
 .ract.play { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
 .ract.del:hover { color: #d1453b; }
@@ -985,6 +995,7 @@ input[type=date], input[type=time] { min-height: 48px; }
         <label class="field" id="dateWrap"><span id="dateLbl">Date</span><input id="fDate" type="date"></label>
         <div class="field"><span>Time</span><div class="timewrap"><input id="fTime" type="time" aria-label="Time"><button type="button" id="fTimeClear" aria-label="Clear time">Any</button></div></div>
       </div>
+      <button type="button" class="ghost wide tmw-btn" id="fTomorrow" hidden></button>
       <div class="field"><span>Repeat</span>
         <div class="seg" id="fRepeat">
           <button type="button" data-v="none">Once</button><button type="button" data-v="sticky">Until done</button><button type="button" data-v="hourly">Hourly</button><button type="button" data-v="daily">Daily</button><button type="button" data-v="weekly">Weekly</button><button type="button" data-v="monthly">Monthly</button><button type="button" data-v="yearly">Yearly</button><button type="button" data-v="dates">Pick dates</button>
@@ -1184,6 +1195,7 @@ const ICON = {
   star: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 16.8l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>',
   pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l-1 6 4 4H6l4-4z"/><path d="M12 13v8"/></svg>',
   cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+  tomorrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16.5a8 8 0 0 1 14.6-4.5"/><path d="M19.5 7v5h-5"/><path d="M3.5 20.5h17"/></svg>',
   medal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.8 4.8L19.5 7"/></svg>'
 };
 
@@ -1861,6 +1873,7 @@ function taskRow(t, ctx, i) {
       ${t.notes ? `<div class="rnote">${esc(t.notes.split('\n')[0])}</div>` : ''}
       ${chips.length ? `<div class="rmeta">${chips.join('')}</div>` : ''}
     </button>
+    ${canTomorrow(t, ctx) ? `<button class="ract tmw" data-act="tomorrow" aria-label="Move ${esc(t.title)} to tomorrow">${ICON.tomorrow}</button>` : ''}
     ${done ? '' : `<button class="ract play" data-act="timer" aria-label="Start a timer for ${esc(t.title)}">${ICON.play}</button>`}
     <button class="ract del" data-act="delete" aria-label="Delete ${esc(t.title)}">${ICON.trash}</button>
   </li>`;
@@ -1869,7 +1882,7 @@ function section(title, rows, opts = {}) {
   if (!rows.length && !opts.always) return '';
   const head = opts.toggle
     ? `<h3 class="sec toggle-sec ${opts.open ? '' : 'closed'}" data-sec="${esc(title)}" data-toggle="${opts.toggle}" role="button" tabindex="0">${ICON.chev}${title}<span class="n">${rows.length}</span></h3>`
-    : `<h3 class="sec ${opts.warn ? 'warn' : ''}" data-sec="${esc(title)}">${title}<span class="n">${rows.length}</span></h3>`;
+    : `<h3 class="sec ${opts.warn ? 'warn' : ''}" data-sec="${esc(title)}">${title}<span class="n">${rows.length}</span>${opts.act || ''}</h3>`;
   if (opts.toggle && !opts.open) return head;
   return head + `<ul class="list">${rows.map((r, i) => opts.row(r, i)).join('')}</ul>`;
 }
@@ -1962,7 +1975,8 @@ function renderToday() {
     return;
   }
   el.innerHTML =
-    section('Overdue', c.overdue, { warn: true, row: (t, i) => taskRow(t, 'overdue', i) }) +
+    section('Overdue', c.overdue, { warn: true, row: (t, i) => taskRow(t, 'overdue', i),
+      act: c.overdue.filter(t => canTomorrow(t, 'overdue')).length > 1 ? `<button type="button" class="sec-act" data-bulk="tomorrow">${ICON.tomorrow}Move all to tomorrow</button>` : '' }) +
     section('Today', c.today, { row: (t, i) => taskRow(t, 'today', i) }) +
     section('Every day until done', c.sticky, { row: (t, i) => taskRow(t, 'today', i) }) +
     section('Anytime', c.anytime, { row: (t, i) => taskRow(t, 'anytime', i) }) +
@@ -2232,6 +2246,7 @@ document.addEventListener('click', e => {
   const tg = e.target.closest('[data-toggle]');
   if (tg) { const k = tg.dataset.toggle; if (k === 'completed') S.completedOpen = !S.completedOpen; else S.ideasDoneOpen = !S.ideasDoneOpen; renderAll(); return; }
   if (e.target.closest('#seedBtn')) { seedExamples(); return; }
+  if (e.target.closest('[data-bulk="tomorrow"]')) { moveAllOverdue(); return; }
   const btn = e.target.closest('[data-act]'); if (!btn) return;
   const row = btn.closest('.row'); if (!row) return;
   const id = row.dataset.id, kind = row.dataset.kind, act = btn.dataset.act;
@@ -2239,6 +2254,7 @@ document.addEventListener('click', e => {
     if (act === 'toggle') row.classList.contains('is-done') ? undoTask(id) : completeTask(id, row);
     else if (act === 'edit') openEditor(id);
     else if (act === 'timer') openTimer(id);
+    else if (act === 'tomorrow') moveToTomorrow(id, row);
     else if (act === 'delete') deleteTask(id, row);
   } else if (kind === 'idea') {
     if (act === 'toggle') toggleIdea(id, row);
@@ -2704,6 +2720,10 @@ function openEditor(id, presetDate, occ) {
   const P = parseDate(firstUp || todayKey());
   ED.cal = { y: P.y, m: P.m };
   $('#fDelete').hidden = !t;
+  // Shown when the task is on today's list (or overdue), so it can be pushed to tomorrow in one tap.
+  const onToday = t && !t.done && t.repeat !== 'hourly' && (t.nextDue == null ? !isRep(t) : dayKey(t.nextDue) <= todayKey()) && !(t.date && t.date > todayKey());
+  $('#fTomorrow').hidden = !onToday;
+  $('#fTomorrow').innerHTML = `${ICON.tomorrow}${t && isRep(t) ? 'Move just this one to tomorrow' : 'Move to tomorrow'}`;
   $('#fSave').textContent = t ? 'Save changes' : 'Add task';
   syncEditor();
   openSheet('#editSheet');
@@ -2784,6 +2804,89 @@ $('#fScope').addEventListener('click', e => {
   anim($('#fSummary').parentElement, [{ opacity: .3, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: D.s, easing: SPRING.s() });
 });
 $('#fCal').addEventListener('click', () => { ED.showCal = !ED.showCal; syncEditor(); Snd.tap(); vibrate(6); });
+$('#fTomorrow').addEventListener('click', () => {
+  const t = S.tasks.get(ED.id); if (!t) return;
+  if (isRep(t)) {
+    // Only this repeat moves; the rest stay. Any other edits on the screen are saved with it.
+    if (ED.scope !== 'one') { ED.scope = 'one'; ED.saved = { date: fDate.value, time: fTime.value }; }
+    if (ED.occ == null) ED.occ = t.nextDue;
+  }
+  fDate.value = tomorrowKey();
+  syncEditor();
+  $('#taskForm').requestSubmit();
+  if ($('#editSheet').classList.contains('open')) return;   // something needs fixing first (like an empty title)
+  toast(isRep(t) ? 'Moved just this one to tomorrow.' : 'Moved to tomorrow.');
+});
+
+/* ---------- move to tomorrow ---------- */
+const tomorrowKey = () => { const d = new Date(); d.setDate(d.getDate() + 1); return dayKey(d.getTime()); };
+// Shown on things that are on today's list (overdue, due today, until done, anytime). Hourly repeats don't get it.
+function canTomorrow(t, ctx) {
+  if (!t || t.done || !['overdue', 'today', 'anytime'].includes(ctx)) return false;
+  if (t.repeat === 'hourly') return false;
+  if (isRep(t) && t.nextDue == null) return false;
+  return true;
+}
+// Moves one task to tomorrow and returns how to undo it.
+//  - One-time, anytime, and until-done tasks: their date becomes tomorrow (time kept).
+//  - Repeating tasks: only this one moves. If the repeat already comes around tomorrow, today's is just skipped.
+function shiftToTomorrow(t) {
+  const tk = tomorrowKey(), now = Date.now();
+  if (isRep(t)) {
+    const occ = t.nextDue;
+    const prev = { skips: t.skips || [], nextDue: t.nextDue, done: !!t.done, completedAt: t.completedAt ?? null };
+    const tmp = { ...t, skips: [...prev.skips, skipKey(t, occ)] };
+    // Does the repeat already come around tomorrow? Then there's nothing to add, just skip this one.
+    const P = parseDate(tk), tmStart = new Date(P.y, P.m, P.d).getTime();
+    const onTomorrow = nextOccurrence(tmp, tmStart - 1);
+    const landsTomorrow = onTomorrow != null && dayKey(onTomorrow) === tk;
+    skipOccurrence(t, occ);
+    let ref = null;
+    if (!landsTomorrow) {
+      const one = { title: t.title, notes: t.notes || '', date: tk, time: t.time || null, repeat: 'none', every: null, days: [], dates: [],
+        hideCal: !!t.hideCal, seriesId: t.id, done: false, timesDone: 0, timeSpent: 0, createdAt: now, updatedAt: now };
+      one.nextDue = initialDue(one, now);
+      ref = doc(S.refs.tasks); w(setDoc(ref, one));
+    }
+    return {
+      msg: ref ? `Moved "${shortTitle(t.title)}" to tomorrow.` : `Skipped today's "${shortTitle(t.title)}". It's back tomorrow.`,
+      undo: () => { w(updateDoc(doc(S.refs.tasks, t.id), prev)); if (ref) w(deleteDoc(ref)); }
+    };
+  }
+  const prev = { date: t.date ?? null, nextDue: t.nextDue ?? null };
+  const next = { ...t, date: tk };
+  w(updateDoc(doc(S.refs.tasks, t.id), { date: tk, nextDue: initialDue(next, now), updatedAt: now }));
+  return { msg: `Moved "${shortTitle(t.title)}" to tomorrow.`, undo: () => w(updateDoc(doc(S.refs.tasks, t.id), prev)) };
+}
+const shortTitle = s => s.length > 26 ? s.slice(0, 25) + '…' : s;
+function slideAway(row, delay = 0) {
+  if (!row) return;
+  setTimeout(() => {
+    row.classList.add('moving');
+    anim(row, [{ transform: 'none' }, { transform: 'translateX(-6px) scale(1.01)', offset: .3 }, { transform: 'translateX(110%) rotate(2deg)', opacity: 0 }], { duration: 420, easing: 'cubic-bezier(.5,0,.7,.4)', fill: 'forwards' });
+    collapseRow(row, 380);
+  }, delay);
+}
+function moveToTomorrow(id, row) {
+  const t = S.tasks.get(id); if (!t || !S.refs) return;
+  animLock++; dirty();
+  slideAway(row);
+  Snd.tap(); vibrate(10);
+  const r = shiftToTomorrow(t);
+  toast(r.msg, 'Undo', () => { r.undo(); Snd.undo(); });
+  setTimeout(releaseLock, row ? 760 : 50);
+}
+function moveAllOverdue() {
+  const c = S.cls || classify();
+  const list = c.overdue.filter(t => canTomorrow(t, 'overdue'));
+  if (!list.length || !S.refs) return;
+  animLock++; dirty();
+  list.forEach((t, i) => slideAway(document.querySelector(`#view-today .row[data-id="${t.id}"]`), i * 70));
+  const undos = list.map(t => shiftToTomorrow(t).undo);
+  Snd.tap(); vibrate([10, 30, 10]);
+  toast(`Moved ${list.length} overdue tasks to tomorrow.`, 'Undo', () => { undos.forEach(u => u()); Snd.undo(); });
+  setTimeout(releaseLock, 760 + list.length * 70);
+}
 
 const occName = ms => { const f = fmtDay(ms); return /^(Today|Tomorrow|Yesterday)$/.test(f) ? f.toLowerCase() : fmtDateKey(dayKey(ms)); };
 // Moves the repeat past one occurrence (used when that one is edited on its own or skipped).
