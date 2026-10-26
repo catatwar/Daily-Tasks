@@ -647,6 +647,45 @@ input[type=date], input[type=time] { min-height: 48px; }
 #calRow { margin: 0; }
 .form .field.gone { display: none; }
 
+/* Hold-to-confirm button */
+.hold { position: relative; overflow: hidden; isolation: isolate; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: none; }
+.hold .hold-fill { position: absolute; inset: 0; z-index: -1; background: color-mix(in srgb, var(--accent) 38%, var(--surface-2)); transform: scaleX(0); transform-origin: left center; transition: transform .3s cubic-bezier(.3,0,.2,1); will-change: transform; }
+.hold.holding .hold-fill { transform: scaleX(1); transition: transform 3s linear; }
+.hold.holding { transform: scale(.96) !important; transition: transform .2s ease-out !important; }
+.hold .hold-lbl { position: relative; font-variant-numeric: tabular-nums; white-space: nowrap; }
+#tmReset { flex: 0 0 40%; min-width: 0; padding-left: 10px; padding-right: 10px; }
+.hold.fired .hold-fill { transform: scaleX(1); background: var(--accent); transition: background .15s; }
+.hold.fired { color: var(--accent-ink); }
+
+/* Battery saver: on while the stopwatch runs.
+   Pure black (OLED pixels switch off), no particles, one update per second, and the only
+   motion is a GPU-rotated layer that never needs repainting. */
+.orbit { position: absolute; inset: 0; border-radius: 50%; opacity: 0; pointer-events: none;
+  background: conic-gradient(from 0deg, transparent 0turn, transparent .72turn, color-mix(in srgb, var(--accent) 55%, transparent) .97turn, var(--accent) 1turn);
+  -webkit-mask: radial-gradient(closest-side, transparent 80.4%, #000 81.2%, #000 93.2%, transparent 94%);
+          mask: radial-gradient(closest-side, transparent 80.4%, #000 81.2%, #000 93.2%, transparent 94%);
+  animation: orbit 60s linear infinite paused; will-change: transform; transition: opacity .5s ease; }
+.orbit i { position: absolute; left: 50%; top: 6.36%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 22%, var(--accent) 38%, transparent 70%); }
+@keyframes orbit { to { transform: rotate(1turn); } }
+.dig .ss { display: inline-block; }
+.lp-chip { display: none; align-items: center; gap: 5px; margin-left: 8px; padding: 2px 8px; border-radius: 999px; background: color-mix(in srgb, var(--accent-2) 22%, transparent); color: var(--accent-2); letter-spacing: .04em; vertical-align: 1px; }
+.lp-chip svg { width: 13px; height: 13px; }
+.sheet.lp { --surface: #000; --surface-2: #101010; --line: #1d1d1d; --ink: #f2ede6; --muted: #8b857d; }
+.sheet.lp::before { background: #000; opacity: calc(var(--dim) * 1); }
+.sheet.lp .sheet-card { box-shadow: none; }
+.sheet.lp .lp-chip { display: inline-flex; }
+.sheet.lp .orbit { opacity: 1; }
+.sheet.lp .dial .prg { opacity: 0; transition: none; }
+.sheet.lp .dial .trk { stroke: #161616; }
+.sheet.lp .dig { color: color-mix(in srgb, var(--accent) 22%, #fff); text-shadow: 0 0 22px color-mix(in srgb, var(--accent) 35%, transparent); transition: opacity 1.2s ease; }
+.sheet.lp .sess-list li.live .pd, .lowpower .pill.run .pd { animation: none; }
+.sheet.lp .primary { box-shadow: none; }
+.sheet.lp.lp-dim .dig, .sheet.lp.lp-dim .st, .sheet.lp.lp-dim .sub { opacity: .45; }
+.sheet.lp.lp-dim .tm > :not(.dial) { opacity: .35; transition: opacity 1.2s ease; }
+.sheet.lp .tm > * { transition: opacity .3s ease; }
+.lowpower #ambient { display: none; }
+
 /* Calendar tab */
 .calv-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 2px 12px; }
 .calv-head h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 1.7rem; line-height: 1.05; min-width: 0; }
@@ -982,11 +1021,12 @@ input[type=date], input[type=time] { min-height: 48px; }
 <div class="sheet" id="timerSheet" hidden>
   <div class="sheet-card tm" role="dialog" aria-modal="true" aria-labelledby="tmTask">
     <div class="grab-zone" aria-hidden="true"><div class="grab"></div></div>
-    <p class="eyebrow">Focus timer</p>
+    <p class="eyebrow"><span id="tmEyebrow">Focus timer</span><span class="lp-chip" id="lpChip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7" width="17" height="10" rx="2.5"/><path d="M22 10.5v3M6 10.5v3"/></svg>Battery saver</span></p>
     <h2 id="tmTask">Task</h2>
     <div class="seg" id="tmMode"><button type="button" data-v="down">Countdown</button><button type="button" data-v="up">Stopwatch</button></div>
     <div class="dial" id="dial">
       <svg viewBox="0 0 220 220"><circle class="trk" cx="110" cy="110" r="96" fill="none" stroke-width="14"/><circle class="prg" id="dialPrg" cx="110" cy="110" r="96" fill="none" stroke-width="14" stroke-dasharray="603.19" stroke-dashoffset="603.19"/></svg>
+      <div class="orbit" id="orbit" aria-hidden="true"><i></i></div>
       <div class="face"><div class="dig" id="tmDig">25:00</div><div class="st" id="tmSt">Ready</div><div class="sub" id="tmSub"></div></div>
     </div>
     <div class="presets" id="tmPresets">
@@ -994,7 +1034,7 @@ input[type=date], input[type=time] { min-height: 48px; }
       <input id="tmCustom" type="number" min="1" max="600" placeholder="min" inputmode="numeric" aria-label="Custom minutes">
     </div>
     <div class="actions">
-      <button type="button" class="ghost" id="tmReset">Reset</button>
+      <button type="button" class="ghost hold" id="tmReset"><span class="hold-fill" aria-hidden="true"></span><span class="hold-lbl" id="tmResetLbl">Reset</span></button>
       <button type="button" class="primary" id="tmGo">Start</button>
     </div>
     <div class="actions" style="margin-top:10px">
@@ -1428,7 +1468,7 @@ const Amb = {
     if (REDUCED) { this.ctx.clearRect(0, 0, this.w, this.h); return; }
     const scale = Math.min(1.3, Math.max(.7, this.w / 420));
     for (const k in theme.kinds) for (let i = 0; i < Math.round(theme.kinds[k] * scale); i++) this.ps.push(this.make(k, true));
-    if (!this.raf) this.raf = requestAnimationFrame(t => this.frame(t));
+    this.wake();
   },
   make(k, initial) {
     const cols = this.theme.pc[k], w = this.w, h = this.h, R = Math.random;
@@ -1446,11 +1486,13 @@ const Amb = {
     }
     return p;
   },
-  last: 0, paused: false,
+  last: 0, paused: false, lp: false,
+  setPaused(v) { this.paused = v; this.wake(); },
+  setLow(v) { this.lp = v; this.wake(); },
+  wake() { if (!this.paused && !this.lp && !this.raf && this.ps.length && !document.hidden) { this.last = 0; this.raf = requestAnimationFrame(t => this.frame(t)); } },
   frame(t) {
     this.raf = 0;
-    if (document.hidden || !this.ps.length) return;
-    if (this.paused) { this.last = 0; this.raf = requestAnimationFrame(tt => this.frame(tt)); return; }
+    if (document.hidden || !this.ps.length || this.paused || this.lp) { this.last = 0; return; }
     const step = this.last ? Math.min(3, (t - this.last) / 16.7) : 1;
     this.last = t;
     const c = this.ctx, w = this.w, h = this.h;
@@ -1518,7 +1560,7 @@ const Amb = {
     }
   }
 };
-document.addEventListener('visibilitychange', () => { if (!document.hidden && !Amb.raf && Amb.ps.length) Amb.raf = requestAnimationFrame(t => Amb.frame(t)); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) Amb.wake(); });
 let rsT; addEventListener('resize', () => { clearTimeout(rsT); rsT = setTimeout(() => { FX.resize(); if (Amb.theme) Amb.setup(Amb.theme); }, 200); });
 
 /* ================= theme ================= */
@@ -2279,7 +2321,7 @@ function completeTask(id, row) {
   localBumpAt = now;
   w(updateDoc(doc(S.refs.tasks, id), upd));
   bumpStats(1, now);
-  if (TM && TM.taskId === id) { endSession(); TM = null; saveTM(); paintPill(); }
+  if (TM && TM.taskId === id) { endSession(); TM = null; saveTM(); paintPill(); updatePowerMode(); }
   const next = rep ? upd.nextDue : null;
   lastUndo = { id, rep, prevDue: t.nextDue ?? null, prevLastDoneAt: t.lastDoneAt ?? null, when: now };
   const short = t.title.length > 28 ? t.title.slice(0, 27) + '…' : t.title;
@@ -2323,7 +2365,7 @@ async function deleteTask(id, row) {
   const t = S.tasks.get(id); if (!t) return;
   const ok = await confirmBox(`Delete "${t.title}"?`, isRep(t) ? 'This removes the task and all its future repeats. Your completed count stays the same.' : 'This removes the task. Your completed count stays the same.');
   if (!ok) return;
-  if (TM && TM.taskId === id) { TM = null; saveTM(); paintPill(); }
+  if (TM && TM.taskId === id) { TM = null; saveTM(); paintPill(); updatePowerMode(); }
   animLock++;
   if (row) collapseRow(row, 0);
   vibrate(10);
@@ -2515,7 +2557,7 @@ function openSheet(sel) {
   // The sheet is already laid out off-screen, so it can start sliding this very frame.
   s.hidden = false; s.classList.add('open');
   document.body.style.overflow = 'hidden';
-  Amb.paused = true;
+  Amb.setPaused(true);
 }
 function closeSheet(sel, fling) {
   const s = $(sel); if (s.hidden || !s.classList.contains('open')) return;
@@ -2538,7 +2580,7 @@ function closeSheet(sel, fling) {
   clearTimeout(sheetTimers[sel]);
   sheetTimers[sel] = setTimeout(() => {
     s.hidden = true; card.classList.remove('closing'); card.style.transition = ''; card.style.transform = ''; s.style.removeProperty('--dim');
-    if (!$$('.sheet').some(x => !x.hidden)) { document.body.style.overflow = ''; Amb.paused = false; }
+    if (!$$('.sheet').some(x => !x.hidden)) { document.body.style.overflow = ''; Amb.setPaused(false); }
     if (sel === '#timerSheet') paintPill();
   }, dur + 30);
 }
@@ -2834,6 +2876,7 @@ $('#fab').addEventListener('click', () => { Snd.tap(); openEditor(null, S.tab ==
 let TM = null;
 try { TM = JSON.parse(localStorage.getItem('dt.timer') || 'null'); } catch (e) { TM = null; }
 if (TM && TM.sessionStart === undefined) TM.sessionStart = TM.startedAt || null;
+if (TM && TM.view !== 'total') TM.view = 'session';
 const saveTM = () => { try { TM ? localStorage.setItem('dt.timer', JSON.stringify(TM)) : localStorage.removeItem('dt.timer'); } catch (e) {} };
 const tmElapsed = () => !TM ? 0 : TM.acc + (TM.running ? Date.now() - TM.startedAt : 0);
 let wakeLock = null;
@@ -2848,11 +2891,11 @@ async function openTimer(id) {
     endSession(); TM = null;
   }
   if (!TM || TM.taskId !== id) {
-    TM = { taskId: id, title: t.title, mode: prefs.tmMode || (isRep(t) ? 'up' : 'down'), dur: (prefs.tmMins || 25) * 60000, acc: 0, logged: 0, running: false, startedAt: 0, finished: false, sessionStart: null, view: 'total' };
+    TM = { taskId: id, title: t.title, mode: prefs.tmMode || (isRep(t) ? 'up' : 'down'), dur: (prefs.tmMins || 25) * 60000, acc: 0, logged: 0, running: false, startedAt: 0, finished: false, sessionStart: null, view: 'session' };
     saveTM();
   }
   TM.title = t.title;
-  Snd.ensure();
+  Snd.ensure(); updatePowerMode();
   S.sessShowAll = false; $('#tmSessions')._key = null;
   paintTimer(); paintSessions(); openSheet('#timerSheet'); paintPill();
 }
@@ -2882,10 +2925,10 @@ function endSession() {
     w(setDoc(S.refs.stats, { sessions: increment(1) }, { merge: true }));
   }
   Object.assign(TM, { acc: 0, logged: 0, running: false, finished: false, startedAt: 0, sessionStart: null });
-  saveTM(); letSleep();
+  saveTM(); letSleep(); updatePowerMode();
 }
 // Save running time every minute, so totals stay current even if the app is closed mid-session.
-setInterval(() => { if (TM && TM.running && tmElapsed() - (TM.logged || 0) >= 60000) commitTime(); }, 15000);
+setInterval(() => { if (TM && TM.running && tmElapsed() - (TM.logged || 0) >= (LP.on ? 300000 : 60000)) commitTime(); }, 15000);
 function fmtClock(ms) {
   const s = Math.max(0, Math.round(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
   return h ? `${h}:${pad(m)}:${pad(x)}` : `${m}:${pad(x)}`;
@@ -2899,23 +2942,32 @@ function paintTimer() {
   $$('#tmPresets button').forEach(b => b.classList.toggle('on', +b.dataset.m * 60000 === TM.dur));
   const t = S.tasks.get(TM.taskId);
   const total = (t?.timeSpent || 0) + Math.max(0, e - (TM.logged || 0));
-  const showTotal = !down && TM.view !== 'session';
+  const showTotal = !down && TM.view === 'total';
   const dig = fmtClock(down ? TM.dur - e : showTotal ? total : e), digEl = $('#tmDig');
   if (digEl.textContent !== dig) {
     const minChanged = digEl.textContent.split(':')[0] !== dig.split(':')[0];
-    digEl.textContent = dig;
-    if (TM.running && minChanged) anim(digEl, [{ transform: 'scale(1.18)' }, { transform: 'none' }], { duration: D.b, easing: SPRING.b() });
+    if (LP.on) {
+      const head = dig.slice(0, -2), ss = dig.slice(-2);
+      let hs = digEl.querySelector('.hm'), ssEl = digEl.querySelector('.ss');
+      if (!hs || !ssEl) { digEl.innerHTML = '<span class="hm"></span><span class="ss"></span>'; hs = digEl.querySelector('.hm'); ssEl = digEl.querySelector('.ss'); }
+      if (hs.textContent !== head) hs.textContent = head;
+      ssEl.textContent = ss;
+      anim(ssEl, [{ transform: 'translateY(-28%)', opacity: .35 }, { transform: 'none', opacity: 1 }], { duration: 420, easing: 'cubic-bezier(.2,.8,.3,1)' });
+    } else {
+      digEl.textContent = dig;
+      if (TM.running && minChanged) anim(digEl, [{ transform: 'scale(1.18)' }, { transform: 'none' }], { duration: D.b, easing: SPRING.b() });
+    }
   }
   $('#tmSt').textContent = TM.finished ? "Time's up" : down ? (TM.running ? 'Focusing' : e > 0 ? 'Paused' : 'Ready')
     : (showTotal ? 'Total, all sessions' : 'This session') + (TM.running ? '' : e > 0 ? ' · paused' : '');
   $('#tmSub').textContent = down ? (total >= 60000 ? `${fmtFocus(total)} total` : '') : showTotal ? `This session ${fmtClock(e)}` : `Total ${fmtClock(total)}`;
   $('#dial').classList.toggle('tappable', !down);
   const pct = down ? Math.min(1, e / TM.dur) : (e % 60000) / 60000;
-  $('#dialPrg').style.strokeDashoffset = String(603.19 * (1 - pct));
+  if (!LP.on) $('#dialPrg').style.strokeDashoffset = String(603.19 * (1 - pct));
   $('#dial').classList.toggle('done', !!TM.finished);
   $('#tmGo').textContent = TM.finished ? '+5 minutes' : TM.running ? 'Pause' : e > 0 ? 'Resume' : 'Start';
   $('#tmReset').disabled = !e && !TM.running;
-  $('#tmReset').textContent = e >= 5000 ? 'End session' : 'Reset';
+  if (!HOLD.on) $('#tmResetLbl').textContent = e >= 5000 ? 'Hold to end' : 'Hold to reset';
   // live numbers
   const sess = (t?.sessions || []);
   const count = sess.length + (e >= 5000 ? 1 : 0);
@@ -2948,7 +3000,7 @@ function paintSessions() {
 $('#tmSessions').addEventListener('click', e => { if (e.target.closest('#tmMore')) { S.sessShowAll = true; paintSessions(); } });
 $('#dial').addEventListener('click', () => {
   if (!TM || TM.mode !== 'up') return;
-  TM.view = TM.view === 'session' ? 'total' : 'session'; saveTM(); paintTimer(); Snd.tap();
+  TM.view = TM.view === 'total' ? 'session' : 'total'; saveTM(); paintTimer(); syncOrbit(); scheduleTick(); Snd.tap();
   anim($('#tmDig'), [{ transform: 'scale(.85)', opacity: .4 }, { transform: 'none', opacity: 1 }], { duration: D.n, easing: SPRING.n() });
 });
 function paintPill() {
@@ -2968,15 +3020,68 @@ function timerFinished() {
   if (document.hidden && !titleFlash) { let on = false; titleFlash = setInterval(() => { document.title = (on = !on) ? "Time's up!" : 'Daily Tasks'; }, 1000); }
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden && titleFlash) { clearInterval(titleFlash); titleFlash = null; document.title = 'Daily Tasks'; } if (!document.hidden && TM?.running) holdAwake(); });
-setInterval(() => {
+let tickT = null, tickN = 0;
+function timerTick() {
   if (!TM) return;
   if (TM.running && TM.mode === 'down' && tmElapsed() >= TM.dur) timerFinished();
-  if (!$('#timerSheet').hidden) paintTimer();
+  const sheetOpen = !$('#timerSheet').hidden;
+  if (sheetOpen) paintTimer();
   paintPill();
-  if (!TM.running || Date.now() % 1000 >= 250) return;
-  paintFocusLine();
-  if (!$('#menuSheet').hidden) renderMenuStats();
-}, 250);
+  if (!TM.running) return;
+  if (LP.on || ++tickN % 4 === 0) {
+    if (!sheetOpen) paintFocusLine();
+    if (!$('#menuSheet').hidden) renderMenuStats();
+  }
+}
+function scheduleTick() {
+  clearTimeout(tickT);
+  // Battery saver wakes exactly once per second, right as the seconds digit changes.
+  const delay = !TM ? 1000 : LP.on ? 1000 - ((shownMs() + 500) % 1000) + 6 : 250;
+  tickT = setTimeout(() => { timerTick(); scheduleTick(); }, delay);
+}
+
+/* ---------- battery saver ---------- */
+// The number the stopwatch is showing right now (this session, or the all-sessions total).
+function shownMs() {
+  if (!TM) return 0;
+  const e = tmElapsed();
+  if (TM.view !== 'total') return e;
+  const t = S.tasks.get(TM.taskId);
+  return (t?.timeSpent || 0) + Math.max(0, e - (TM.logged || 0));
+}
+const LP = { on: false, idle: null };
+function updatePowerMode() {
+  const on = !!(TM && TM.running && TM.mode === 'up');
+  if (on !== LP.on) {
+    LP.on = on;
+    document.documentElement.classList.toggle('lowpower', on);
+    $('#timerSheet').classList.toggle('lp', on);
+    Amb.setLow(on);
+    if (on) { FX.parts = []; FX.ctx && FX.ctx.clearRect(0, 0, innerWidth, innerHeight); lpWake(); }
+    else { $('#timerSheet').classList.remove('lp-dim'); clearTimeout(LP.idle); }
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', on ? '#000000' : THEMES[S.themeKey].bg);
+  }
+  syncOrbit();
+  scheduleTick();
+}
+// Keep the orbit lined up with the real seconds (it runs on its own on the GPU between updates).
+function syncOrbit() {
+  const o = $('#orbit');
+  const run = !!(TM && TM.mode === 'up' && TM.running);
+  o.style.animation = 'none'; void o.offsetWidth;
+  o.style.animation = `orbit 60s linear -${Math.round(shownMs() % 60000)}ms infinite ${run ? 'running' : 'paused'}`;
+}
+// After 15 seconds without a touch, the screen dims further. Any touch brings it back.
+function lpWake() {
+  const s = $('#timerSheet');
+  s.classList.remove('lp-dim');
+  clearTimeout(LP.idle);
+  if (LP.on) LP.idle = setTimeout(() => s.classList.add('lp-dim'), 15000);
+}
+['pointerdown', 'keydown'].forEach(ev => $('#timerSheet').addEventListener(ev, lpWake, { passive: true }));
+document.addEventListener('visibilitychange', () => { if (!document.hidden && LP.on) { syncOrbit(); scheduleTick(); } });
+scheduleTick();
 
 $('#tmGo').addEventListener('click', () => {
   if (!TM) return;
@@ -2984,19 +3089,59 @@ $('#tmGo').addEventListener('click', () => {
   if (TM.running) { TM.acc = tmElapsed(); TM.running = false; commitTime(); letSleep(); Snd.tap(); }
   else { TM.running = true; TM.startedAt = Date.now(); if (!TM.sessionStart) TM.sessionStart = TM.startedAt; holdAwake(); Snd.tap(); vibrate(10); }
   anim($('#dial'), [{ transform: TM.running ? 'scale(.9)' : 'scale(1.05)' }, { transform: 'none' }], { duration: D.b, easing: SPRING.b() });
-  saveTM(); paintTimer(); paintSessions();
+  saveTM(); updatePowerMode(); paintTimer(); paintSessions();
 });
-$('#tmReset').addEventListener('click', () => {
+/* Reset only happens after holding the button for 3 seconds, so it can't be tapped by accident. */
+const HOLD = { on: false, timer: null, tick: null, start: 0 };
+function doReset() {
   if (!TM) return;
   const had = tmElapsed() >= 5000;
-  endSession(); paintTimer(); paintSessions(); Snd.undo();
-  if (had) toast('Session saved.');
-});
+  endSession(); TM.view = 'session'; saveTM(); paintTimer(); paintSessions(); Snd.undo(); updatePowerMode();
+  anim($('#tmDig'), [{ transform: 'scale(.6)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: D.b, easing: SPRING.b() });
+  toast(had ? 'Session saved. Timer reset.' : 'Timer reset.');
+}
+function holdStart(e) {
+  const b = $('#tmReset');
+  if (b.disabled || HOLD.on || !TM) return;
+  if (e) e.preventDefault();
+  HOLD.on = true; HOLD.start = performance.now();
+  b.classList.remove('fired'); b.classList.add('holding');
+  const paintLeft = () => {
+    const left = Math.max(1, Math.ceil(3 - (performance.now() - HOLD.start) / 1000));
+    $('#tmResetLbl').textContent = `Holding… ${left}`;
+  };
+  paintLeft(); vibrate(8); Snd.tap();
+  HOLD.tick = setInterval(() => { paintLeft(); vibrate(6); }, 1000);
+  HOLD.timer = setTimeout(() => {
+    clearInterval(HOLD.tick); HOLD.on = false;
+    b.classList.remove('holding'); b.classList.add('fired');
+    vibrate([18, 40, 18]);
+    doReset();
+    setTimeout(() => { b.classList.remove('fired'); paintTimer(); }, 450);
+  }, 3000);
+}
+function holdCancel() {
+  if (!HOLD.on) return;
+  clearTimeout(HOLD.timer); clearInterval(HOLD.tick);
+  HOLD.on = false;
+  const b = $('#tmReset'); b.classList.remove('holding');
+  if (performance.now() - HOLD.start < 600) toast('Hold the button for 3 seconds to reset.');
+  paintTimer();
+}
+(() => {
+  const b = $('#tmReset');
+  b.addEventListener('pointerdown', e => { if (e.button === 0 || e.pointerType !== 'mouse') holdStart(e); });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => b.addEventListener(ev, holdCancel));
+  b.addEventListener('contextmenu', e => e.preventDefault());
+  b.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) holdStart(e); });
+  b.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') holdCancel(); });
+  b.addEventListener('blur', holdCancel);
+})();
 $('#tmMode').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b || !TM || TM.mode === b.dataset.v) return;
   endSession();
   TM.mode = b.dataset.v;
-  prefs.tmMode = TM.mode; savePrefsLocal(); saveTM(); paintTimer(); paintSessions(); Snd.tap();
+  prefs.tmMode = TM.mode; savePrefsLocal(); saveTM(); updatePowerMode(); paintTimer(); paintSessions(); Snd.tap();
 });
 $('#tmPresets').addEventListener('click', e => {
   const b = e.target.closest('button[data-m]'); if (!b || !TM) return;
@@ -3011,7 +3156,7 @@ function setTimerMins(m) {
 $('#tmCheck').addEventListener('click', () => {
   if (!TM) return;
   const id = TM.taskId;
-  endSession(); TM = null; saveTM();
+  endSession(); TM = null; saveTM(); updatePowerMode();
   closeSheet('#timerSheet');
   setTimeout(() => {
     const row = document.querySelector(`.row[data-id="${id}"]:not(.is-done)`);
@@ -3031,7 +3176,7 @@ $('#counterBtn').addEventListener('click', () => { renderMenuStats(); renderThem
 $('#signOutBtn').addEventListener('click', async () => {
   const ok = await confirmBox('Sign out?', "You'll need your email and password to sign back in on this phone.", 'Sign out');
   if (!ok) return;
-  if (TM) { endSession(); TM = null; saveTM(); }
+  if (TM) { endSession(); TM = null; saveTM(); updatePowerMode(); }
   closeSheet('#menuSheet');
   try { await signOut(auth); } catch (e) { onErr(e); }
 });
@@ -3046,7 +3191,7 @@ const codeSignature = root => [...root.querySelectorAll('script, style')].map(el
 const MY_CODE = codeSignature(document);
 
 async function checkForUpdate() {
-  if (UPD.pending || UPD.checking || document.hidden || !navigator.onLine) return;
+  if (UPD.pending || UPD.checking || document.hidden || !navigator.onLine || LP.on) return;
   if (!/^https?:$/.test(location.protocol)) return;
   UPD.checking = true;
   try {
@@ -3121,11 +3266,12 @@ FX.resize();
 paintSound();
 applyTheme();
 requestAnimationFrame(() => moveTabInd(true));
+updatePowerMode();
 // Refresh "today" when the date rolls over or the app comes back to the front.
 let lastDay = todayKey();
 setInterval(() => { if (todayKey() !== lastDay) { lastDay = todayKey(); applyTheme(); requestRender(); } }, 30000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { if (todayKey() !== lastDay) { lastDay = todayKey(); applyTheme(); } requestRender(); } });
-setInterval(() => { if (!document.hidden && S.user) requestRender(); }, 60000);
+setInterval(() => { if (!document.hidden && S.user && !LP.on) requestRender(); }, 60000);
 </script>
 
 <script>
