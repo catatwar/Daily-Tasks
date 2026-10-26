@@ -199,9 +199,10 @@ DT.setIcons(DT.current);
   --spring-b: cubic-bezier(.34,1.8,.5,1);
   --spring-s: cubic-bezier(.3,1.25,.5,1);
   --spring-n: cubic-bezier(.3,1.5,.5,1);
+  --spring-sheet: cubic-bezier(.22,1,.36,1);
 }
 @supports (animation-timing-function: linear(0, 1)) {
-  :root { --spring-b: linear(0, 0.0433, 0.1561, 0.3132, 0.4915, 0.6713, 0.8374, 0.9792, 1.0903, 1.1686, 1.215, 1.233, 1.2276, 1.2045, 1.1697, 1.1288, 1.0865, 1.0467, 1.012, 0.9843, 0.9642, 0.9517, 0.946, 0.9461, 0.9507, 0.9583, 0.9676, 0.9775, 0.987, 0.9954, 1.0023, 1.0074, 1.0108, 1.0124, 1.0127, 1.0119, 1.0102, 1.0081, 1.0058, 1.0035, 1.0015, 0.9998, 0.9985, 0.9976, 0.9972, 0.997, 0.9972, 0.9975, 1); --spring-s: linear(0, 0.0193, 0.0707, 0.145, 0.2343, 0.3319, 0.4324, 0.5313, 0.6254, 0.7122, 0.7902, 0.8584, 0.9166, 0.9648, 1.0034, 1.0333, 1.0551, 1.0701, 1.079, 1.0831, 1.0831, 1.0801, 1.0747, 1.0678, 1.0599, 1.0516, 1.0432, 1.0352, 1.0276, 1.0207, 1.0146, 1.0093, 1.0049, 1.0012, 0.9984, 0.9962, 0.9947, 0.9937, 0.9932, 0.993, 0.9932, 0.9935, 0.994, 0.9947, 0.9953, 0.996, 0.9967, 0.9974, 1); --spring-n: linear(0, 0.0258, 0.0937, 0.1908, 0.3055, 0.4281, 0.5508, 0.6675, 0.7738, 0.8668, 0.945, 1.008, 1.056, 1.0903, 1.1122, 1.1236, 1.1262, 1.122, 1.1128, 1.1001, 1.0854, 1.0698, 1.0544, 1.0398, 1.0266, 1.0152, 1.0056, 0.9979, 0.9921, 0.9881, 0.9855, 0.9843, 0.9841, 0.9847, 0.986, 0.9876, 0.9895, 0.9915, 0.9934, 0.9952, 0.9969, 0.9983, 0.9995, 1.0004, 1.0011, 1.0016, 1.0019, 1.002, 1); --spring: var(--spring-n); }
+  :root { --spring-b: linear(0, 0.0433, 0.1561, 0.3132, 0.4915, 0.6713, 0.8374, 0.9792, 1.0903, 1.1686, 1.215, 1.233, 1.2276, 1.2045, 1.1697, 1.1288, 1.0865, 1.0467, 1.012, 0.9843, 0.9642, 0.9517, 0.946, 0.9461, 0.9507, 0.9583, 0.9676, 0.9775, 0.987, 0.9954, 1.0023, 1.0074, 1.0108, 1.0124, 1.0127, 1.0119, 1.0102, 1.0081, 1.0058, 1.0035, 1.0015, 0.9998, 0.9985, 0.9976, 0.9972, 0.997, 0.9972, 0.9975, 1); --spring-s: linear(0, 0.0193, 0.0707, 0.145, 0.2343, 0.3319, 0.4324, 0.5313, 0.6254, 0.7122, 0.7902, 0.8584, 0.9166, 0.9648, 1.0034, 1.0333, 1.0551, 1.0701, 1.079, 1.0831, 1.0831, 1.0801, 1.0747, 1.0678, 1.0599, 1.0516, 1.0432, 1.0352, 1.0276, 1.0207, 1.0146, 1.0093, 1.0049, 1.0012, 0.9984, 0.9962, 0.9947, 0.9937, 0.9932, 0.993, 0.9932, 0.9935, 0.994, 0.9947, 0.9953, 0.996, 0.9967, 0.9974, 1); --spring-sheet: linear(0, 0.0182, 0.0653, 0.1314, 0.2089, 0.2919, 0.376, 0.458, 0.5356, 0.6074, 0.6725, 0.7306, 0.7817, 0.8259, 0.8636, 0.8955, 0.9219, 0.9437, 0.9612, 0.9751, 0.986, 0.9943, 1.0004, 1.0049, 1.0078, 1.0097, 1.0107, 1.0111, 1.011, 1.0105, 1.0098, 1.009, 1.008, 1.0071, 1.0062, 1.0053, 1.0045, 1.0038, 1.0031, 1.0025, 1); --spring-n: linear(0, 0.0258, 0.0937, 0.1908, 0.3055, 0.4281, 0.5508, 0.6675, 0.7738, 0.8668, 0.945, 1.008, 1.056, 1.0903, 1.1122, 1.1236, 1.1262, 1.122, 1.1128, 1.1001, 1.0854, 1.0698, 1.0544, 1.0398, 1.0266, 1.0152, 1.0056, 0.9979, 0.9921, 0.9881, 0.9855, 0.9843, 0.9841, 0.9847, 0.986, 0.9876, 0.9895, 0.9915, 0.9934, 0.9952, 0.9969, 0.9983, 0.9995, 1.0004, 1.0011, 1.0016, 1.0019, 1.002, 1); --spring: var(--spring-n); }
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--ink); }
@@ -365,8 +366,46 @@ input[type=date], input[type=time] { min-height: 48px; }
 .compose { display: flex; flex-direction: column; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 12px; box-shadow: var(--shadow); }
 .compose textarea { background: transparent; padding: 6px 6px; font-size: 1.05rem; border: 0; }
 .compose textarea:focus { background: transparent; }
-.compose .bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.compose .cbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .compose .hint { color: var(--muted); font-size: .82rem; font-weight: 700; padding-left: 6px; }
+.fpick { display: inline-flex; align-items: center; gap: 7px; min-width: 0; max-width: 70%; padding: 8px 12px 8px 10px; border-radius: 999px; background: var(--surface-2); font-weight: 800; font-size: .88rem; }
+.fpick span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.fpick svg { width: 14px; height: 14px; flex: none; color: var(--muted); }
+.fdot { width: 11px; height: 11px; border-radius: 4px; flex: none; background: var(--c, var(--muted)); box-shadow: inset 0 0 0 1.5px rgba(0,0,0,.08); }
+.folders { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px 14px; padding: 2px 16px 6px; scroll-padding: 16px; -webkit-overflow-scrolling: touch; }
+.folders::-webkit-scrollbar { display: none; }
+.fchip { flex: none; display: inline-flex; align-items: center; gap: 7px; padding: 9px 14px 9px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font-weight: 800; font-size: .9rem; white-space: nowrap; box-shadow: var(--shadow); }
+.fchip .n { font-size: .74rem; font-weight: 900; color: var(--muted); font-variant-numeric: tabular-nums; }
+.fchip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.fchip.on .n { color: color-mix(in srgb, var(--bg) 70%, transparent); }
+.fchip.add { background: transparent; border-style: dashed; color: var(--muted); box-shadow: none; }
+.fchip.add svg { width: 14px; height: 14px; }
+.folder-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -2px 4px 12px; }
+.folder-head h3 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 1.45rem; line-height: 1.1; display: flex; align-items: center; gap: 10px; min-width: 0; overflow-wrap: anywhere; }
+.folder-head h3 .fdot { width: 14px; height: 14px; border-radius: 5px; }
+.folder-head button { flex: none; font-weight: 800; color: var(--accent); padding: 6px 4px; }
+.idea .rmeta { margin-top: 5px; }
+.idea .when { display: inline; }
+.chip.folder { cursor: pointer; }
+.chip.folder .fdot { width: 9px; height: 9px; border-radius: 3px; }
+.flist { display: flex; flex-direction: column; gap: 6px; }
+.fopt { display: flex; align-items: center; gap: 12px; width: 100%; padding: 13px 14px; border-radius: 16px; background: var(--surface-2); font-weight: 800; text-align: left; border: 2px solid transparent; }
+.fopt .fdot { width: 16px; height: 16px; border-radius: 6px; }
+.fopt .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fopt .n { color: var(--muted); font-size: .8rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.fopt.on { border-color: var(--accent); }
+.fopt.on::after { content: ''; width: 9px; height: 15px; border: solid var(--accent); border-width: 0 3px 3px 0; transform: rotate(45deg) translate(-2px, -2px); flex: none; }
+.fopt.enter { animation: rise .7s var(--spring-s) both; animation-delay: calc(var(--i, 0) * 40ms); }
+.fs-preview { margin: -8px 0 14px; color: var(--muted); font-weight: 700; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.fnew { display: flex; flex-direction: column; gap: 10px; }
+.fnew .menu-sec { margin: 22px 0 0; }
+.fnew-row { display: flex; gap: 8px; }
+.fnew-row input { flex: 1; }
+.fnew-row .primary { flex: none; padding: 12px 18px; }
+.fcolors { display: flex; gap: 8px; flex-wrap: wrap; }
+.fcolors button { width: 34px; height: 34px; border-radius: 11px; background: var(--c); box-shadow: inset 0 0 0 1.5px rgba(0,0,0,.1); }
+.fcolors button.on { box-shadow: 0 0 0 3px var(--surface), 0 0 0 5.5px var(--c); transform: scale(1.06); }
+#fsDelete { margin-top: 8px; }
 .compose .primary { padding: 10px 18px; border-radius: 13px; }
 .idea .rtitle { font-weight: 700; white-space: pre-wrap; }
 .idea .when { color: var(--muted); font-size: .78rem; font-weight: 700; margin-top: 3px; }
@@ -404,16 +443,19 @@ input[type=date], input[type=time] { min-height: 48px; }
 @keyframes pillIn { from { opacity: 0; transform: translate(-50%, 16px) scale(.9); } }
 
 /* ---------- sheets ---------- */
-.sheet { position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-end; justify-content: center; background: rgba(12,8,16,0); transition: background .28s ease; }
-.sheet.open { background: rgba(12,8,16,.46); }
+.sheet { position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-end; justify-content: center; --dim: 0; }
+.sheet::before { content: ''; position: absolute; inset: 0; background: rgba(12,8,16,.46); opacity: var(--dim); transition: opacity .3s ease; will-change: opacity; }
+/* Hidden sheets stay laid out (just invisible) so opening one has nothing to build on the first frame. */
+.sheet[hidden] { display: flex !important; visibility: hidden; pointer-events: none; }
+.sheet.open { --dim: 1; }
 .sheet-card { width: 100%; max-width: 560px; max-height: 92dvh; overflow-y: auto; overscroll-behavior: contain; background: var(--surface);
-  border-radius: 28px 28px 0 0; transform: translateY(104%); transition: transform .65s var(--spring-s); position: relative; will-change: transform;
+  border-radius: 28px 28px 0 0; transform: translate3d(0, 104%, 0); transition: transform .48s var(--spring-sheet); position: relative; will-change: transform; contain: layout paint style;
   padding: 10px max(20px, env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 22px) max(20px, env(safe-area-inset-left,0px));
   box-shadow: 0 -20px 50px -30px rgba(0,0,0,.5), 0 160px 0 0 var(--surface); }
 .sheet.open .sheet-card { transform: none; }
-.sheet-card.closing { transition: transform .32s cubic-bezier(.4,0,.7,.2); }
+.sheet-card.closing { transition: transform .3s cubic-bezier(.5,0,.75,0); }
 .sheet-card.dragging { transition: none; }
-.sheet.dragging-bg { transition: none; }
+.sheet.dragging-bg::before { transition: none; }
 .grab-zone { position: sticky; top: -10px; z-index: 2; margin: -10px -20px 4px; padding: 12px 0 14px; touch-action: none; cursor: grab; background: linear-gradient(var(--surface) 70%, transparent); }
 .grab-zone:active { cursor: grabbing; }
 .grab { width: 44px; height: 5px; border-radius: 9px; background: var(--line); margin: 0 auto; transition: transform .45s var(--spring-n), background .2s; }
@@ -538,12 +580,13 @@ input[type=date], input[type=time] { min-height: 48px; }
 .flystar svg { width: 100%; height: 100%; filter: drop-shadow(0 2px 4px rgba(0,0,0,.2)); }
 
 /* Squishy press: shrink fast on touch, spring back with a bounce on release */
-:is(.primary, .ghost, .iconbtn, .counter, .seg button, .days button, .presets button, .ract, .check, .tab, .th, .cal-grid button, .stepper, .linkbtn, .switch, .pill, .dangerbtn, .cal-head button, .timewrap button, .toast button) { transition: transform .6s var(--spring-n), background-color .2s, color .2s, border-color .2s, box-shadow .25s, opacity .2s; }
-:is(.primary, .ghost, .iconbtn, .counter, .seg button, .days button, .presets button, .ract, .check, .tab, .th, .cal-grid button, .stepper, .linkbtn, .switch, .pill, .dangerbtn, .cal-head button, .timewrap button, .toast button):active { transform: scale(.88); transition: transform .07s ease-out, background-color .2s, color .2s; }
+:is(.fchip, .fopt, .fpick, .fcolors button, .chip.folder, .primary, .ghost, .iconbtn, .counter, .seg button, .days button, .presets button, .ract, .check, .tab, .th, .cal-grid button, .stepper, .linkbtn, .switch, .pill, .dangerbtn, .cal-head button, .timewrap button, .toast button) { transition: transform .6s var(--spring-n), background-color .2s, color .2s, border-color .2s, box-shadow .25s, opacity .2s; }
+:is(.fchip, .fopt, .fpick, .fcolors button, .chip.folder, .primary, .ghost, .iconbtn, .counter, .seg button, .days button, .presets button, .ract, .check, .tab, .th, .cal-grid button, .stepper, .linkbtn, .switch, .pill, .dangerbtn, .cal-head button, .timewrap button, .toast button):active { transform: scale(.88); transition: transform .07s ease-out, background-color .2s, color .2s; }
 .check:active { transform: scale(.78); }
-#fab { transition: transform .6s var(--spring-b), box-shadow .3s; }
-#fab:active { transform: scale(.84) rotate(-14deg); transition: transform .07s ease-out; }
-#fab:active svg { transform: rotate(90deg); }
+#fab { transition: transform .45s var(--spring-n), box-shadow .3s; will-change: transform; }
+#fab:active { transform: scale(.88); transition: transform .06s ease-out; }
+#fab svg { transition: transform .45s var(--spring-n); }
+#fab:active svg { transform: rotate(45deg); }
 .row { transform-origin: 50% 60%; }
 .row.press { transform: scale(.975); transition: transform .08s ease-out; }
 .row.completing, .row.collapse { will-change: transform; }
@@ -553,6 +596,25 @@ input[type=date], input[type=time] { min-height: 48px; }
   padding: 5px 12px; border-radius: 999px; box-shadow: 0 10px 20px -8px var(--accent); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .plus1 { position: fixed; z-index: 86; pointer-events: none; font-weight: 900; font-size: 1.15rem; color: var(--accent); text-shadow: 0 2px 8px rgba(0,0,0,.18); }
 .dial.tick { animation: jelly .55s ease-out; }
+
+/* Update banner */
+.upd { position: fixed; z-index: 95; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 12px); transform: translateX(-50%);
+  width: min(528px, calc(100vw - 24px)); display: grid; grid-template-columns: auto 1fr; grid-template-areas: "ring txt" "acts acts"; gap: 10px 14px; align-items: center;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 14px; box-shadow: 0 24px 50px -20px rgba(0,0,0,.55);
+  animation: updIn .8s var(--spring-n); }
+@keyframes updIn { from { opacity: 0; transform: translate(-50%, -24px) scale(.92); } }
+.upd-ring { grid-area: ring; position: relative; width: 48px; height: 48px; }
+.upd-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.upd-ring .trk { stroke: var(--surface-2); }
+.upd-ring .prg { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+.upd-ring b { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 900; font-variant-numeric: tabular-nums; }
+.upd-txt { grid-area: txt; min-width: 0; }
+.upd-t { margin: 0; font-weight: 900; font-size: 1.02rem; }
+.upd-b { margin: 2px 0 0; color: var(--muted); font-weight: 700; font-size: .88rem; }
+.upd-acts { grid-area: acts; display: flex; gap: 8px; }
+.upd-acts button { flex: 1; padding: 11px 14px; border-radius: 14px; }
+.upd-acts .ghost:disabled { opacity: .45; }
+:is(.upd-acts button):active { transform: scale(.92); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; transition-duration: .01ms !important; }
@@ -619,9 +681,11 @@ input[type=date], input[type=time] { min-height: 48px; }
       <section class="view" id="view-today"></section>
       <section class="view" id="view-schedule" hidden></section>
       <section class="view" id="view-ideas" hidden>
+        <div class="folders" id="folderBar" role="tablist" aria-label="Folders"></div>
+        <div class="folder-head" id="folderHead" hidden></div>
         <form class="compose" id="ideaForm">
           <textarea id="ideaText" rows="2" maxlength="2000" placeholder="Jot down an idea or a random thought…"></textarea>
-          <div class="bar"><span class="hint">Saved to your account</span><button class="primary" type="submit">Add</button></div>
+          <div class="cbar"><button type="button" class="fpick" id="ideaFolderBtn" aria-label="Choose a folder"></button><button class="primary" type="submit">Add</button></div>
         </form>
         <div id="ideasList"></div>
       </section>
@@ -728,12 +792,37 @@ input[type=date], input[type=time] { min-height: 48px; }
   </div>
 </div>
 
+<!-- Folders -->
+<div class="sheet" id="folderSheet" hidden>
+  <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="fsTitle">
+    <div class="grab-zone" aria-hidden="true"><div class="grab"></div></div>
+    <h2 id="fsTitle">Save to</h2>
+    <p class="fs-preview" id="fsPreview" hidden></p>
+    <div class="flist" id="fsList"></div>
+    <form class="fnew" id="fsForm" novalidate>
+      <p class="menu-sec" id="fsFormLbl">New folder</p>
+      <div class="fnew-row">
+        <input id="fsName" type="text" maxlength="40" placeholder="Dream journal, Gift ideas…" autocomplete="off" aria-label="Folder name">
+        <button class="primary" type="submit" id="fsSave">Create</button>
+      </div>
+      <div class="fcolors" id="fsColors" role="radiogroup" aria-label="Folder color"></div>
+      <button type="button" class="ghost danger wide" id="fsDelete" hidden>Delete folder</button>
+    </form>
+  </div>
+</div>
+
 <div class="modal" id="confirm" hidden>
   <div class="modal-card" role="alertdialog" aria-modal="true" aria-labelledby="cfTitle">
     <h3 id="cfTitle"></h3>
     <p id="cfBody"></p>
     <div class="actions"><button class="ghost" id="cfNo">Keep it</button><button class="dangerbtn" id="cfYes">Delete</button></div>
   </div>
+</div>
+
+<div class="upd" id="upd" hidden role="alertdialog" aria-labelledby="updTitle" aria-describedby="updBody">
+  <div class="upd-ring"><svg viewBox="0 0 44 44"><circle class="trk" cx="22" cy="22" r="19" fill="none" stroke-width="4"/><circle class="prg" id="updPrg" cx="22" cy="22" r="19" fill="none" stroke-width="4" stroke-dasharray="119.38" stroke-dashoffset="0"/></svg><b id="updNum">10</b></div>
+  <div class="upd-txt"><p class="upd-t" id="updTitle">Update ready</p><p class="upd-b" id="updBody">Refreshing to the new version.</p></div>
+  <div class="upd-acts"><button type="button" class="ghost" id="updLater">+30 sec</button><button type="button" class="primary" id="updNow">Update</button></div>
 </div>
 
 <div class="toast" id="toast" hidden role="status"><span id="toastMsg"></span><button id="toastAct" hidden>Undo</button></div>
@@ -980,7 +1069,8 @@ function fmtDur(ms) {
 const S = {
   user: null, refs: null, unsub: [],
   tasks: new Map(), ideas: new Map(), stats: { total: 0, daily: {} }, statsLoaded: false,
-  loaded: { tasks: false, ideas: false },
+  folders: new Map(), ideaFilter: 'all', composeFolder: null,
+  loaded: { tasks: false, ideas: false, folders: false },
   tab: 'today', seen: new Set(), cls: null, themeKey: DT.current, ideasDoneOpen: false, completedOpen: false
 };
 let animLock = 0, pendingRender = false;
@@ -1247,12 +1337,13 @@ function stopListeners() {
   S.unsub.forEach(u => { try { u(); } catch (e) {} });
   S.unsub = []; S.refs = null;
   S.tasks = new Map(); S.ideas = new Map(); S.stats = { total: 0, daily: {} }; S.statsLoaded = false;
-  S.loaded = { tasks: false, ideas: false }; S.seen = new Set();
+  S.folders = new Map(); S.loaded = { tasks: false, ideas: false, folders: false }; S.seen = new Set();
 }
 function startListeners(uid) {
   S.refs = {
     tasks: collection(db, 'users', uid, 'tasks'),
     ideas: collection(db, 'users', uid, 'ideas'),
+    folders: collection(db, 'users', uid, 'folders'),
     stats: doc(db, 'users', uid, 'meta', 'stats'),
     prefs: doc(db, 'users', uid, 'meta', 'prefs')
   };
@@ -1264,6 +1355,15 @@ function startListeners(uid) {
   S.unsub.push(onSnapshot(S.refs.ideas, snap => {
     const m = new Map(); snap.forEach(d => m.set(d.id, { id: d.id, ...d.data() }));
     S.ideas = m; S.loaded.ideas = true; requestRender();
+  }, onErr));
+  S.unsub.push(onSnapshot(S.refs.folders, snap => {
+    const m = new Map(); snap.forEach(d => m.set(d.id, { id: d.id, ...d.data() }));
+    const first = !S.loaded.folders;
+    S.folders = m; S.loaded.folders = true;
+    if (first && S.composeFolder == null && m.has(S.ideaFilter)) S.composeFolder = S.ideaFilter;
+    if (S.ideaFilter !== 'all' && S.ideaFilter !== 'none' && !m.has(S.ideaFilter)) S.ideaFilter = 'all';
+    if (S.composeFolder && !m.has(S.composeFolder)) S.composeFolder = null;
+    requestRender();
   }, onErr));
   S.unsub.push(onSnapshot(S.refs.stats, snap => {
     const d = snap.data() || {};
@@ -1492,22 +1592,59 @@ function renderSchedule() {
     section('No date', c.anytime, { row: (t, i) => taskRow(t, 'anytime', i) }) +
     section('Completed', c.completed.slice(0, 60), { toggle: 'completed', open: S.completedOpen, row: (t, i) => taskRow(t, 'done', i) });
 }
+/* ---------- folders ---------- */
+const FOLDER_COLORS = ['#e07a4f', '#d9a42b', '#6aa84f', '#33a0a0', '#4a7fd6', '#8a63c9', '#d4508a', '#8c8178'];
+const LOOSE = { id: 'none', name: 'Loose thoughts', color: '#9a9aa6' };
+const folderOf = d => (d.folderId && S.folders.get(d.folderId)) || null;
+const sortedFolders = () => [...S.folders.values()].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+const ICON_FOLDER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+const ICON_PLUS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+try { const f = localStorage.getItem('dt.ideaFilter'); if (f) S.ideaFilter = f; } catch (e) {}
+const inFilter = d => S.ideaFilter === 'all' ? true : S.ideaFilter === 'none' ? !folderOf(d) : d.folderId === S.ideaFilter;
+
 function ideaRow(d, i) {
   const isNew = !S.seen.has(d.id);
   const when = d.createdAt ? fmtDay(d.createdAt) + ', ' + fmtTime(d.createdAt) : '';
+  const f = folderOf(d);
+  const chip = S.ideaFilter === 'all' && f ? `<span class="chip folder" data-act="move" style="--c:${f.color}"><span class="fdot"></span>${esc(f.name)}</span>` : '';
   return `<li class="row idea ${d.done ? 'is-done' : ''} ${isNew ? 'enter' : ''}" style="--i:${Math.min(i, 12)}" data-id="${d.id}" data-kind="idea">
     <button class="check" data-act="toggle" aria-label="${d.done ? 'Uncheck' : 'Check off'} idea">${ICON.check}</button>
-    <div class="rbody"><div class="rtitle"><span class="t">${esc(d.text)}</span></div><div class="when">${esc(when)}</div></div>
+    <button class="rbody" data-act="move" aria-label="Move to a folder"><div class="rtitle"><span class="t">${esc(d.text)}</span></div><div class="rmeta">${chip}<span class="when">${esc(when)}</span></div></button>
     <button class="ract del" data-act="delete" aria-label="Delete idea">${ICON.trash}</button>
   </li>`;
 }
+function renderFolderBar() {
+  const bar = $('#folderBar'), head = $('#folderHead');
+  const open = [...S.ideas.values()].filter(d => !d.done);
+  const count = id => id === 'all' ? open.length : id === 'none' ? open.filter(d => !folderOf(d)).length : open.filter(d => d.folderId === id).length;
+  const fs = sortedFolders();
+  const chip = (id, name, color) => `<button class="fchip ${S.ideaFilter === id ? 'on' : ''}" data-filter="${id}" role="tab" aria-selected="${S.ideaFilter === id}">${color ? `<span class="fdot" style="--c:${color}"></span>` : ''}${esc(name)}<span class="n">${count(id)}</span></button>`;
+  const html = chip('all', 'All') + (fs.length ? chip('none', LOOSE.name, LOOSE.color) : '') +
+    fs.map(f => chip(f.id, f.name, f.color)).join('') +
+    `<button class="fchip add" data-filter="new">${ICON_PLUS}New folder</button>`;
+  if (bar._last !== html) { const x = bar.scrollLeft; bar.innerHTML = html; bar._last = html; bar.scrollLeft = x; }
+  const cur = S.folders.get(S.ideaFilter);
+  head.hidden = !cur;
+  if (cur) head.innerHTML = `<h3><span class="fdot" style="--c:${cur.color}"></span>${esc(cur.name)}</h3><button type="button" id="editFolderBtn">Edit</button>`;
+  // what a new idea gets saved to
+  const target = S.composeFolder ? S.folders.get(S.composeFolder) : null;
+  $('#ideaFolderBtn').innerHTML = `<span class="fdot" style="--c:${target ? target.color : LOOSE.color}"></span><span>${esc(target ? target.name : (fs.length ? LOOSE.name : 'No folder'))}</span>${ICON_FOLDER}`;
+  $('#ideaText').placeholder = target ? `Add to ${target.name}…` : 'Jot down an idea or a random thought…';
+}
 function renderIdeas() {
   const el = $('#ideasList');
+  renderFolderBar();
   if (!S.loaded.ideas) { el.innerHTML = ''; return; }
-  const all = [...S.ideas.values()];
+  const all = [...S.ideas.values()].filter(inFilter);
   const open = all.filter(d => !d.done).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   const done = all.filter(d => d.done).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
-  if (!all.length) { el.innerHTML = `<div class="empty" style="margin-top:18px"><h3>Empty notebook</h3><p>Shower thoughts, gift ideas, a song to look up later. Write it down before it floats away.</p></div>`; return; }
+  if (!all.length) {
+    const cur = S.folders.get(S.ideaFilter);
+    el.innerHTML = cur ? `<div class="empty" style="margin-top:18px"><h3>Nothing here yet</h3><p>Ideas you add while ${esc(cur.name)} is open get saved here.</p></div>`
+      : S.ideaFilter === 'none' ? `<div class="empty" style="margin-top:18px"><h3>All sorted</h3><p>Every idea is in a folder.</p></div>`
+      : `<div class="empty" style="margin-top:18px"><h3>Empty notebook</h3><p>Shower thoughts, gift ideas, a song to look up later. Write it down before it floats away. Make folders to keep journals apart.</p></div>`;
+    return;
+  }
   el.innerHTML = '<div style="height:18px"></div>' +
     section('Ideas', open, { row: ideaRow }) +
     section('Checked off', done, { toggle: 'ideasDone', open: S.ideasDoneOpen, row: ideaRow });
@@ -1552,6 +1689,7 @@ document.addEventListener('click', e => {
   } else if (kind === 'idea') {
     if (act === 'toggle') toggleIdea(id, row);
     else if (act === 'delete') deleteIdea(id, row);
+    else if (act === 'move') openFolderSheet('move', id);
   }
 });
 
@@ -1695,8 +1833,117 @@ $('#ideaForm').addEventListener('submit', e => {
   const ta = $('#ideaText'), text = ta.value.trim();
   if (!text || !S.refs) { ta.focus(); return; }
   const ref = doc(S.refs.ideas);
-  w(setDoc(ref, { text, done: false, createdAt: Date.now() }));
+  const folderId = S.composeFolder && S.folders.has(S.composeFolder) ? S.composeFolder : null;
+  w(setDoc(ref, { text, done: false, createdAt: Date.now(), folderId }));
   ta.value = ''; autosize(ta); Snd.tap(); vibrate(8);
+  // If the list is showing a different folder, hop to the one it was saved in so you see it land.
+  if (S.ideaFilter !== 'all' && (folderId || 'none') !== S.ideaFilter) setIdeaFilter(folderId || 'none');
+  const f = folderId && S.folders.get(folderId);
+  if (f && S.ideaFilter === 'all') toast(`Saved to ${f.name}.`);
+});
+
+function setIdeaFilter(id) {
+  if (S.ideaFilter === id) return;
+  S.ideaFilter = id;
+  try { localStorage.setItem('dt.ideaFilter', id); } catch (e) {}
+  if (id !== 'all') S.composeFolder = id === 'none' ? null : id;
+  lastRenderTab = null;          // fresh list, rows pop in instead of gliding
+  S.seen = new Set([...S.seen].filter(k => !S.ideas.has(k)));
+  renderAll(); Snd.tap();
+  const chip = document.querySelector(`.fchip[data-filter="${id}"]`);
+  if (chip) { chip.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: REDUCED ? 'auto' : 'smooth' }); anim(chip, [{ transform: 'scale(.8)' }, { transform: 'none' }], { duration: 700, easing: SPRING.b() }); }
+}
+$('#folderBar').addEventListener('click', e => {
+  const b = e.target.closest('[data-filter]'); if (!b) return;
+  if (b.dataset.filter === 'new') { openFolderSheet('new'); return; }
+  setIdeaFilter(b.dataset.filter);
+});
+$('#folderHead').addEventListener('click', e => { if (e.target.closest('#editFolderBtn')) openFolderSheet('edit', S.ideaFilter); });
+$('#ideaFolderBtn').addEventListener('click', () => openFolderSheet('pick'));
+
+/* One sheet does four jobs: pick where a new idea goes, move an idea, make a folder, edit a folder. */
+const FS = { mode: 'pick', ideaId: null, folderId: null, color: FOLDER_COLORS[0] };
+$('#fsColors').innerHTML = FOLDER_COLORS.map(c => `<button type="button" data-c="${c}" style="--c:${c}" role="radio" aria-label="Color"></button>`).join('');
+function paintColors() { $$('#fsColors button').forEach(b => { const on = b.dataset.c === FS.color; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); }); }
+function openFolderSheet(mode, id) {
+  FS.mode = mode; FS.ideaId = mode === 'move' ? id : null; FS.folderId = mode === 'edit' ? id : null;
+  const f = FS.folderId ? S.folders.get(FS.folderId) : null;
+  const idea = FS.ideaId ? S.ideas.get(FS.ideaId) : null;
+  $('#fsTitle').textContent = mode === 'move' ? 'Move to' : mode === 'pick' ? 'Save new ideas to' : mode === 'edit' ? 'Edit folder' : 'New folder';
+  $('#fsPreview').hidden = !idea; if (idea) $('#fsPreview').textContent = `"${idea.text}"`;
+  const listOn = mode === 'move' || mode === 'pick';
+  $('#fsList').hidden = !listOn;
+  if (listOn) {
+    const current = mode === 'move' ? (folderOf(idea) ? idea.folderId : 'none') : (S.composeFolder || 'none');
+    const open = [...S.ideas.values()].filter(d => !d.done);
+    const opt = (fid, name, color, i) => `<button type="button" class="fopt enter ${current === fid ? 'on' : ''}" style="--i:${i}" data-fid="${fid}"><span class="fdot" style="--c:${color}"></span><span class="nm">${esc(name)}</span><span class="n">${fid === 'none' ? open.filter(d => !folderOf(d)).length : open.filter(d => d.folderId === fid).length}</span></button>`;
+    $('#fsList').innerHTML = opt('none', LOOSE.name, LOOSE.color, 0) + sortedFolders().map((x, i) => opt(x.id, x.name, x.color, i + 1)).join('');
+  }
+  $('#fsFormLbl').textContent = mode === 'edit' ? 'Name and color' : listOn ? 'Or make a new folder' : 'Name and color';
+  $('#fsName').value = f ? f.name : '';
+  $('#fsSave').textContent = mode === 'edit' ? 'Save' : 'Create';
+  $('#fsDelete').hidden = mode !== 'edit';
+  FS.color = f ? f.color : FOLDER_COLORS[S.folders.size % FOLDER_COLORS.length];
+  paintColors();
+  openSheet('#folderSheet');
+  if (mode === 'new' || mode === 'edit') setTimeout(() => $('#fsName').focus(), 380);
+}
+$('#fsColors').addEventListener('click', e => {
+  const b = e.target.closest('button[data-c]'); if (!b) return;
+  FS.color = b.dataset.c; paintColors(); Snd.tap();
+  anim(b, [{ transform: 'scale(.6) rotate(-15deg)' }, { transform: 'scale(1.06)' }], { duration: 700, easing: SPRING.b() });
+});
+function chooseFolder(fid) {
+  const folderId = fid === 'none' ? null : fid;
+  if (FS.mode === 'move' && FS.ideaId) {
+    const idea = S.ideas.get(FS.ideaId);
+    if (idea && (idea.folderId || null) !== folderId) {
+      w(updateDoc(doc(S.refs.ideas, FS.ideaId), { folderId }));
+      const f = folderId && S.folders.get(folderId);
+      toast(f ? `Moved to ${f.name}.` : `Moved to ${LOOSE.name}.`);
+      vibrate(8);
+    }
+  } else {
+    S.composeFolder = folderId;
+    if (S.ideaFilter !== 'all' && S.ideaFilter !== (fid)) setIdeaFilter(fid); else renderFolderBar();
+  }
+  Snd.tap();
+  closeSheet('#folderSheet');
+}
+$('#fsList').addEventListener('click', e => {
+  const b = e.target.closest('[data-fid]'); if (!b) return;
+  $$('#fsList .fopt').forEach(x => x.classList.toggle('on', x === b));
+  anim(b, [{ transform: 'scale(.94)' }, { transform: 'none' }], { duration: 600, easing: SPRING.b() });
+  setTimeout(() => chooseFolder(b.dataset.fid), 160);
+});
+$('#fsForm').addEventListener('submit', e => {
+  e.preventDefault();
+  if (!S.refs) return;
+  const name = $('#fsName').value.trim();
+  if (!name) { shake($('#fsName')); $('#fsName').focus(); return; }
+  if (FS.mode === 'edit' && FS.folderId) {
+    w(updateDoc(doc(S.refs.folders, FS.folderId), { name, color: FS.color }));
+    toast('Folder saved.'); Snd.tap(); closeSheet('#folderSheet'); return;
+  }
+  const ref = doc(S.refs.folders);
+  w(setDoc(ref, { name, color: FS.color, createdAt: Date.now() }));
+  Snd.check(); vibrate(10);
+  const r = $('#fsSave').getBoundingClientRect(); FX.burst(r.left + r.width / 2, r.top + r.height / 2, 22, .8);
+  if (FS.mode === 'move' && FS.ideaId) { w(updateDoc(doc(S.refs.ideas, FS.ideaId), { folderId: ref.id })); toast(`Made ${name} and moved the idea there.`); }
+  else { S.composeFolder = ref.id; S.ideaFilter = 'all'; setTimeout(() => setIdeaFilter(ref.id), 60); toast(`Made ${name}. New ideas go there.`); }
+  closeSheet('#folderSheet');
+});
+$('#fsDelete').addEventListener('click', async () => {
+  const f = FS.folderId && S.folders.get(FS.folderId); if (!f) return;
+  const inside = [...S.ideas.values()].filter(d => d.folderId === f.id);
+  const ok = await confirmBox(`Delete ${f.name}?`, inside.length ? `The ${inside.length} idea${inside.length > 1 ? 's' : ''} inside will move to ${LOOSE.name}. Nothing gets deleted except the folder.` : 'The folder is empty, so nothing else changes.');
+  if (!ok) return;
+  inside.forEach(d => w(updateDoc(doc(S.refs.ideas, d.id), { folderId: null })));
+  w(deleteDoc(doc(S.refs.folders, f.id)));
+  if (S.composeFolder === f.id) S.composeFolder = null;
+  closeSheet('#folderSheet');
+  setIdeaFilter('all');
+  toast(`Deleted ${f.name}.`);
 });
 const ideaText = $('#ideaText');
 ideaText.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && matchMedia('(hover: hover)').matches) { e.preventDefault(); $('#ideaForm').requestSubmit(); } });
@@ -1759,24 +2006,37 @@ const sheetTimers = {};
 function openSheet(sel) {
   const s = $(sel), card = s.querySelector('.sheet-card');
   clearTimeout(sheetTimers[sel]);
-  card.classList.remove('closing', 'dragging'); card.style.transform = ''; s.style.background = '';
+  card.classList.remove('closing', 'dragging'); card.style.transform = ''; card.style.transition = ''; s.style.removeProperty('--dim');
   card.scrollTop = 0;
-  s.hidden = false; requestAnimationFrame(() => requestAnimationFrame(() => s.classList.add('open')));
+  // The sheet is already laid out off-screen, so it can start sliding this very frame.
+  s.hidden = false; s.classList.add('open');
   document.body.style.overflow = 'hidden';
   Amb.paused = true;
 }
-function closeSheet(sel) {
+function closeSheet(sel, fling) {
   const s = $(sel); if (s.hidden || !s.classList.contains('open')) return;
   const card = s.querySelector('.sheet-card');
-  card.classList.add('closing');
-  card.style.transform = ''; s.style.background = '';
+  let dur = 300;
+  if (fling) {
+    // Carry on at the finger's speed: the slide starts exactly as fast as the swipe was going.
+    const end = card.offsetHeight * 1.04, remaining = Math.max(1, end - fling.dy);
+    const v = Math.max(0, fling.v);                                  // px per ms
+    dur = Math.round(Math.min(320, Math.max(150, remaining / Math.max(v, 1.3) * 1.4)));
+    const y1 = Math.min(1, .3 * v * dur / remaining);               // matches the starting speed
+    card.style.transition = `transform ${dur}ms cubic-bezier(.3, ${y1.toFixed(3)}, .65, 1)`;
+    card.style.transform = `translate3d(0, ${end}px, 0)`;
+    s.style.setProperty('--dim', '0');
+  } else {
+    card.classList.add('closing');
+    card.style.transform = ''; s.style.removeProperty('--dim');
+  }
   s.classList.remove('open');
   clearTimeout(sheetTimers[sel]);
   sheetTimers[sel] = setTimeout(() => {
-    s.hidden = true; card.classList.remove('closing');
+    s.hidden = true; card.classList.remove('closing'); card.style.transition = ''; card.style.transform = ''; s.style.removeProperty('--dim');
     if (!$$('.sheet').some(x => !x.hidden)) { document.body.style.overflow = ''; Amb.paused = false; }
     if (sel === '#timerSheet') paintPill();
-  }, 330);
+  }, dur + 30);
 }
 
 /* Swipe down to close. Works from the handle anywhere, or from the sheet when it's scrolled to the top. */
@@ -1800,9 +2060,9 @@ function enableSheetDrag(sheet) {
     if (e.cancelable) e.preventDefault();
     const raw = y - startY;
     dy = raw > 0 ? raw : -Math.pow(-raw, .7);           // rubber-band when pulled up
-    card.style.transform = `translateY(${dy}px)`;
+    card.style.transform = `translate3d(0, ${dy}px, 0)`;
     const k = Math.max(0, 1 - Math.max(0, dy) / (card.offsetHeight || 1));
-    sheet.style.background = `rgba(12,8,16,${(.46 * k).toFixed(3)})`;
+    sheet.style.setProperty('--dim', k.toFixed(3));
     const now = performance.now(); samples.push({ y, t: now }); while (samples.length > 2 && now - samples[0].t > 90) samples.shift();
   };
   const end = () => {
@@ -1812,9 +2072,9 @@ function enableSheetDrag(sheet) {
     card.classList.remove('dragging'); sheet.classList.remove('dragging-bg');
     const a = samples[0], b = samples[samples.length - 1];
     const v = b && a && b.t > a.t ? (b.y - a.y) / (b.t - a.t) : 0;   // px per ms
-    if (dy > card.offsetHeight * .28 || (v > .55 && dy > 20)) { vibrate(8); closeSheet(sel); }
+    if (dy > card.offsetHeight * .28 || (v > .55 && dy > 20)) { vibrate(8); closeSheet(sel, { v, dy }); }
     else {
-      sheet.style.background = '';
+      sheet.style.removeProperty('--dim');
       card.style.transform = '';      // springs back via the card's spring transition
     }
   };
@@ -1884,7 +2144,7 @@ function openEditor(id) {
   $('#fSave').textContent = t ? 'Save changes' : 'Add task';
   syncEditor();
   openSheet('#editSheet');
-  if (!t) setTimeout(() => fTitle.focus(), 380);
+  if (!t) setTimeout(() => fTitle.focus({ preventScroll: true }), 480);
 }
 function draft() {
   const ex = ED.id ? S.tasks.get(ED.id) : null;
@@ -2140,6 +2400,84 @@ $('#signOutBtn').addEventListener('click', async () => {
   closeSheet('#menuSheet');
   try { await signOut(auth); } catch (e) { onErr(e); }
 });
+
+/* ================= updates from GitHub =================
+   Every 30 seconds, download the published page and compare its code (scripts + styles)
+   with the code running right now. If they differ, count down and reload, with up to
+   two "+30 sec" postpones. */
+const UPDATE_URL = 'https://catatwar.github.io/Daily-Tasks/';
+const UPD = { timer: null, tick: null, deadline: 0, total: 10, postpones: 0, pending: false, checking: false };
+const codeSignature = root => [...root.querySelectorAll('script, style')].map(el => el.textContent).join('\u0001');
+const MY_CODE = codeSignature(document);
+
+async function checkForUpdate() {
+  if (UPD.pending || UPD.checking || document.hidden || !navigator.onLine) return;
+  if (!/^https?:$/.test(location.protocol)) return;
+  UPD.checking = true;
+  try {
+    const res = await fetch(UPDATE_URL + '?check=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const html = await res.text();
+    const theirs = codeSignature(new DOMParser().parseFromString(html, 'text/html'));
+    if (theirs && theirs !== MY_CODE) startUpdateCountdown();
+  } catch (e) { /* offline or blocked: try again next time */ }
+  finally { UPD.checking = false; }
+}
+
+function startUpdateCountdown() {
+  if (UPD.pending) return;
+  UPD.pending = true; UPD.postpones = 0;
+  UPD.total = 10; UPD.deadline = Date.now() + 10000;
+  $('#upd').hidden = false;
+  paintUpdate(true);
+  Snd.tap();
+  vibrate([12, 40, 12]);
+  clearInterval(UPD.tick);
+  UPD.tick = setInterval(() => { paintUpdate(); if (Date.now() >= UPD.deadline) applyUpdate(); }, 250);
+}
+function paintUpdate(first) {
+  const left = Math.max(0, Math.ceil((UPD.deadline - Date.now()) / 1000));
+  const num = $('#updNum');
+  if (num.textContent !== String(left)) {
+    num.textContent = left;
+    if (!first) anim(num, [{ transform: 'scale(1.35)' }, { transform: 'none' }], { duration: 600, easing: SPRING.b() });
+  }
+  const frac = Math.max(0, Math.min(1, (UPD.deadline - Date.now()) / (UPD.total * 1000)));
+  $('#updPrg').style.strokeDashoffset = String(119.38 * (1 - frac));
+  const remaining = 2 - UPD.postpones;
+  const later = $('#updLater');
+  later.disabled = remaining <= 0;
+  later.textContent = remaining > 0 ? `+30 sec (${remaining} left)` : 'No more waits';
+  $('#updBody').textContent = left > 0 ? `Refreshing to the new version in ${left} second${left === 1 ? '' : 's'}.` : 'Refreshing now…';
+}
+$('#updLater').addEventListener('click', () => {
+  if (UPD.postpones >= 2 || !UPD.pending) return;
+  UPD.postpones++;
+  UPD.deadline += 30000;
+  UPD.total = Math.max(1, (UPD.deadline - Date.now()) / 1000);
+  $('#updPrg').style.transition = 'none'; paintUpdate(); void $('#updPrg').getBoundingClientRect(); $('#updPrg').style.transition = '';
+  anim($('#upd'), [{ transform: 'translateX(-50%) scale(.95)' }, { transform: 'translateX(-50%)' }], { duration: 700, easing: SPRING.b() });
+  Snd.tap(); vibrate(8);
+  toast(UPD.postpones >= 2 ? 'Last wait. It will refresh when the timer ends.' : 'Okay, 30 more seconds.');
+});
+$('#updNow').addEventListener('click', applyUpdate);
+
+function applyUpdate() {
+  clearInterval(UPD.tick);
+  $('#updBody').textContent = 'Refreshing now…';
+  // Save focus-timer time before leaving. The timer itself keeps running across the reload.
+  try { if (TM) { commitTime(); saveTM(); } } catch (e) {}
+  // A fresh URL makes sure GitHub's cache hands over the new version.
+  const u = new URL(location.href);
+  u.searchParams.set('v', Date.now());
+  setTimeout(() => location.replace(u.toString()), 150);
+}
+// Tidy the address after an update reload.
+try { const u = new URL(location.href); if (u.searchParams.has('v')) { u.searchParams.delete('v'); history.replaceState(null, '', u.pathname + u.search + u.hash); } } catch (e) {}
+
+setInterval(checkForUpdate, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) setTimeout(checkForUpdate, 1500); });
+setTimeout(checkForUpdate, 5000);
 
 /* ================= boot ================= */
 FX.resize();
