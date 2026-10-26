@@ -377,10 +377,10 @@ input[type=date], input[type=time] { min-height: 48px; }
 /* ---------- nav + fab ---------- */
 .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; justify-content: center;
   padding: 8px max(12px, env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 8px) max(12px, env(safe-area-inset-left,0px));
-  background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  background: color-mix(in srgb, var(--bg) 96%, transparent);
   border-top: 1px solid var(--line); }
 .tabs .in { position: relative; display: flex; gap: 4px; width: 100%; max-width: 560px; padding-right: 74px; }
-.tab-ind { position: absolute; top: 0; left: 0; height: 100%; border-radius: 14px; background: color-mix(in srgb, var(--accent) 14%, transparent); pointer-events: none; transition: transform .6s var(--spring-n), width .6s var(--spring-n); }
+.tab-ind { position: absolute; top: 0; left: 0; height: 100%; border-radius: 14px; background: color-mix(in srgb, var(--accent) 14%, transparent); pointer-events: none; transition: transform .6s var(--spring-n); will-change: transform; }
 .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 7px 4px; border-radius: 14px; color: var(--muted); font-weight: 800; font-size: .74rem; transition: color .2s, background .25s; }
 .tab svg { width: 22px; height: 22px; transition: transform .3s var(--spring); }
 .tab { position: relative; z-index: 1; }
@@ -416,8 +416,8 @@ input[type=date], input[type=time] { min-height: 48px; }
 .sheet.dragging-bg { transition: none; }
 .grab-zone { position: sticky; top: -10px; z-index: 2; margin: -10px -20px 4px; padding: 12px 0 14px; touch-action: none; cursor: grab; background: linear-gradient(var(--surface) 70%, transparent); }
 .grab-zone:active { cursor: grabbing; }
-.grab { width: 44px; height: 5px; border-radius: 9px; background: var(--line); margin: 0 auto; transition: width .4s var(--spring-n), background .2s; }
-.dragging .grab, .grab-zone:active .grab { width: 58px; background: var(--muted); }
+.grab { width: 44px; height: 5px; border-radius: 9px; background: var(--line); margin: 0 auto; transition: transform .45s var(--spring-n), background .2s; }
+.dragging .grab, .grab-zone:active .grab { transform: scaleX(1.3); background: var(--muted); }
 .sheet h2 { font-family: var(--display); font-weight: 400; font-size: 1.7rem; margin: 0 0 16px; line-height: 1.1; overflow-wrap: anywhere; }
 .form { display: flex; flex-direction: column; gap: 16px; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -538,14 +538,15 @@ input[type=date], input[type=time] { min-height: 48px; }
 .flystar svg { width: 100%; height: 100%; filter: drop-shadow(0 2px 4px rgba(0,0,0,.2)); }
 
 /* Squishy press: shrink fast on touch, spring back with a bounce on release */
-:is(.primary, .ghost, .iconbtn, .counter, .seg button, .days button, .presets button, .ract, .check, .tab, .th, .cal-grid button, .stepper, .linkbtn, .switch, .pill, .dangerbtn, .cal-head button, .timewrap button, .toast button) { transition: transform .6s var(--spring-n), background-color .2s, color .2s, border-color .2s, box-shadow .25s, opacity .2s, width .5s var(--spring-n); }
+:is(.primary, .ghost, .iconbtn, .counter, .seg button, .days button, .presets button, .ract, .check, .tab, .th, .cal-grid button, .stepper, .linkbtn, .switch, .pill, .dangerbtn, .cal-head button, .timewrap button, .toast button) { transition: transform .6s var(--spring-n), background-color .2s, color .2s, border-color .2s, box-shadow .25s, opacity .2s; }
 :is(.primary, .ghost, .iconbtn, .counter, .seg button, .days button, .presets button, .ract, .check, .tab, .th, .cal-grid button, .stepper, .linkbtn, .switch, .pill, .dangerbtn, .cal-head button, .timewrap button, .toast button):active { transform: scale(.88); transition: transform .07s ease-out, background-color .2s, color .2s; }
 .check:active { transform: scale(.78); }
 #fab { transition: transform .6s var(--spring-b), box-shadow .3s; }
 #fab:active { transform: scale(.84) rotate(-14deg); transition: transform .07s ease-out; }
 #fab:active svg { transform: rotate(90deg); }
 .row { transform-origin: 50% 60%; }
-.row:has(.rbody:active) { transform: scale(.975); transition: transform .08s ease-out; }
+.row.press { transform: scale(.975); transition: transform .08s ease-out; }
+.row.completing, .row.collapse { will-change: transform; }
 .days button.on, .cal-grid button.on { transform: scale(1.06); }
 .days button.just, .cal-grid button.just, .seg button.just { animation: pop .6s var(--spring-b); }
 .combo { position: fixed; z-index: 86; pointer-events: none; font-weight: 900; font-size: 1rem; color: var(--accent-ink); background: var(--accent);
@@ -774,7 +775,8 @@ const pad = n => String(n).padStart(2, '0');
 const vibrate = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
 const CAN_LINEAR = window.CSS && CSS.supports && CSS.supports('animation-timing-function', 'linear(0, 1)');
 const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-const SPRING = { b: () => CAN_LINEAR ? cssVar('--spring-b') : 'cubic-bezier(.34,1.8,.5,1)', s: () => CAN_LINEAR ? cssVar('--spring-s') : 'cubic-bezier(.3,1.25,.5,1)', n: () => CAN_LINEAR ? cssVar('--spring-n') : 'cubic-bezier(.3,1.5,.5,1)' };
+const SPRING_RAW = { b: () => CAN_LINEAR ? cssVar('--spring-b') : 'cubic-bezier(.34,1.8,.5,1)', s: () => CAN_LINEAR ? cssVar('--spring-s') : 'cubic-bezier(.3,1.25,.5,1)', n: () => CAN_LINEAR ? cssVar('--spring-n') : 'cubic-bezier(.3,1.5,.5,1)' };
+const SPRING = (() => { const c = {}; const get = k => c[k] || (c[k] = SPRING_RAW[k]()); return { b: () => get('b'), s: () => get('s'), n: () => get('n') }; })();
 const anim = (el, frames, opts) => { if (REDUCED || !el || !el.animate) return null; try { return el.animate(frames, opts); } catch (e) { return null; } };
 const savePrefsLocal = () => { try { localStorage.setItem('dt.prefs', JSON.stringify(prefs)); } catch (e) {} };
 
@@ -1030,7 +1032,7 @@ const Snd = {
 /* ================= confetti ================= */
 const FX = {
   cv: $('#fx'), ctx: null, parts: [], raf: 0,
-  resize() { const d = Math.min(2, devicePixelRatio || 1); this.cv.width = innerWidth * d; this.cv.height = innerHeight * d; this.ctx = this.cv.getContext('2d'); this.ctx.setTransform(d, 0, 0, d, 0, 0); },
+  resize() { const d = Math.min(1.5, devicePixelRatio || 1); this.cv.width = innerWidth * d; this.cv.height = innerHeight * d; this.ctx = this.cv.getContext('2d'); this.ctx.setTransform(d, 0, 0, d, 0, 0); },
   burst(x, y, n = 28, power = 1) {
     if (REDUCED) return;
     const cols = THEMES[S.themeKey].fx;
@@ -1065,7 +1067,7 @@ function drawStar(c, r, n = 5) {
 /* ================= seasonal ambience ================= */
 const Amb = {
   cv: $('#ambient'), ctx: null, ps: [], raf: 0, w: 0, h: 0, theme: null,
-  resize() { const d = Math.min(2, devicePixelRatio || 1); this.w = innerWidth; this.h = innerHeight; this.cv.width = this.w * d; this.cv.height = this.h * d; this.ctx = this.cv.getContext('2d'); this.ctx.setTransform(d, 0, 0, d, 0, 0); },
+  resize() { const d = 1; this.w = innerWidth; this.h = innerHeight; this.cv.width = this.w * d; this.cv.height = this.h * d; this.ctx = this.cv.getContext('2d'); this.ctx.setTransform(d, 0, 0, d, 0, 0); },
   setup(theme) {
     this.theme = theme; this.resize(); this.ps = [];
     if (REDUCED) { this.ctx.clearRect(0, 0, this.w, this.h); return; }
@@ -1089,16 +1091,21 @@ const Amb = {
     }
     return p;
   },
+  last: 0, paused: false,
   frame(t) {
     this.raf = 0;
     if (document.hidden || !this.ps.length) return;
+    // 30fps is plenty for slow drifting particles and leaves the GPU free for the UI.
+    if (this.paused || FX.parts.length || t - this.last < 32) { this.raf = requestAnimationFrame(tt => this.frame(tt)); return; }
+    const step = this.last ? Math.min(3, (t - this.last) / 16.7) : 1;
+    this.last = t;
     const c = this.ctx, w = this.w, h = this.h;
     c.clearRect(0, 0, w, h);
     for (let i = 0; i < this.ps.length; i++) {
       let p = this.ps[i];
-      p.ph += .012;
-      if (p.k === 'bats') { p.x += p.vx; p.y = p.base + Math.sin(p.ph * 1.6) * 18; }
-      else { p.x += p.vx + Math.sin(p.ph) * (p.k === 'snow' ? .3 : p.k === 'stars' || p.k === 'sparkle' ? .05 : .55); p.y += p.vy; p.r += p.vr; }
+      p.ph += .012 * step;
+      if (p.k === 'bats') { p.x += p.vx * step; p.y = p.base + Math.sin(p.ph * 1.6) * 18; }
+      else { p.x += (p.vx + Math.sin(p.ph) * (p.k === 'snow' ? .3 : p.k === 'stars' || p.k === 'sparkle' ? .05 : .55)) * step; p.y += p.vy * step; p.r += p.vr * step; }
       const out = p.y > h + 30 || p.y < -40 || p.x < -60 || p.x > w + 60;
       if (out) { p = this.ps[i] = this.make(p.k, false); }
       c.save(); c.translate(p.x, p.y); c.rotate(p.r);
@@ -1394,6 +1401,14 @@ function section(title, rows, opts = {}) {
   return head + `<ul class="list">${rows.map((r, i) => opts.row(r, i)).join('')}</ul>`;
 }
 
+const innerDesc = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+for (const el of [$('#view-today'), $('#view-schedule'), $('#ideasList')]) {
+  Object.defineProperty(el, 'innerHTML', {
+    get() { return innerDesc.get.call(this); },
+    set(v) { if (this._last === v) return; this._last = v; innerDesc.set.call(this, v); }
+  });
+}
+const dirty = () => { for (const s of ['#view-today', '#view-schedule', '#ideasList']) $(s)._last = null; };
 function viewEl() { return S.tab === 'ideas' ? $('#ideasList') : $('#view-' + S.tab); }
 function snapRects() {
   const m = new Map(), v = viewEl(); if (!v) return m;
@@ -1540,7 +1555,11 @@ document.addEventListener('click', e => {
   }
 });
 
+document.addEventListener('pointerdown', e => { const b = e.target.closest('.rbody'); if (b) b.closest('.row')?.classList.add('press'); }, { passive: true });
+const unpress = () => $$('.row.press').forEach(r => r.classList.remove('press'));
+['pointerup', 'pointercancel', 'scroll'].forEach(ev => document.addEventListener(ev, unpress, { passive: true, capture: true }));
 function collapseRow(row, delay = 0) {
+  dirty();
   setTimeout(() => {
     row.style.height = row.offsetHeight + 'px'; void row.offsetHeight;
     row.classList.add('collapse');
@@ -1607,7 +1626,7 @@ function completeTask(id, row) {
     upd = { done: true, completedAt: now, timesDone: increment(1), updatedAt: now };
   }
   // Animate first, then let the list re-render.
-  animLock++;
+  animLock++; dirty();
   if (row) {
     row.classList.add('completing');
     const ck = row.querySelector('.check').getBoundingClientRect();
@@ -1744,6 +1763,7 @@ function openSheet(sel) {
   card.scrollTop = 0;
   s.hidden = false; requestAnimationFrame(() => requestAnimationFrame(() => s.classList.add('open')));
   document.body.style.overflow = 'hidden';
+  Amb.paused = true;
 }
 function closeSheet(sel) {
   const s = $(sel); if (s.hidden || !s.classList.contains('open')) return;
@@ -1754,7 +1774,7 @@ function closeSheet(sel) {
   clearTimeout(sheetTimers[sel]);
   sheetTimers[sel] = setTimeout(() => {
     s.hidden = true; card.classList.remove('closing');
-    if (!$$('.sheet').some(x => !x.hidden)) document.body.style.overflow = '';
+    if (!$$('.sheet').some(x => !x.hidden)) { document.body.style.overflow = ''; Amb.paused = false; }
     if (sel === '#timerSheet') paintPill();
   }, 330);
 }
