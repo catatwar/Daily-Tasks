@@ -161,7 +161,10 @@ window.DT = (function () {
   try { Object.assign(prefs, JSON.parse(localStorage.getItem('dt.prefs') || '{}')); } catch (e) {}
   const key = prefs.theme !== 'auto' && THEMES[prefs.theme] ? prefs.theme : autoTheme(new Date());
   apply(key);
-  return { THEMES, autoTheme, apply, holidayLine, prefs, current: key };
+  // CSS and JavaScript animations support different things on some browsers (iPhone Safari), so test the JS side directly.
+  let waapiLinear = false;
+  try { const t = document.createElement('div').animate([{ opacity: 0 }, { opacity: 1 }], { duration: 1, easing: 'linear(0, 0.5, 1)' }); t.cancel(); waapiLinear = true; } catch (e) {}
+  return { THEMES, autoTheme, apply, holidayLine, prefs, current: key, waapiLinear };
 })();
 </script>
 <script>
@@ -199,12 +202,12 @@ DT.setIcons(DT.current);
   --spring-b: cubic-bezier(.34,1.8,.5,1);
   --spring-s: cubic-bezier(.3,1.25,.5,1);
   --spring-n: cubic-bezier(.3,1.5,.5,1);
-  --spring-sheet: cubic-bezier(.3,1.35,.5,1);
+  --spring-sheet: cubic-bezier(.25,1.12,.5,1);
   /* How long each spring takes to settle. */
-  --d-b: 460ms; --d-s: 332ms; --d-n: 293ms; --d-sheet: 446ms;
+  --d-b: 460ms; --d-s: 332ms; --d-n: 293ms; --d-sheet: 365ms;
 }
 @supports (animation-timing-function: linear(0, 1)) {
-  :root { --spring-b: linear(0.0, 0.034, 0.1244, 0.2537, 0.4055, 0.5653, 0.721, 0.8632, 0.9854, 1.0836, 1.1564, 1.204, 1.2285, 1.2331, 1.2215, 1.1977, 1.1658, 1.1296, 1.0923, 1.0565, 1.0243, 0.9971, 0.9756, 0.9601, 0.9504, 0.9459, 0.9459, 0.9494, 0.9555, 0.9633, 0.9719, 0.9806, 0.9888, 0.996, 1.0021, 1.0067, 1.01, 1.012, 1.0127, 1.0125, 1.0115, 1.01, 1.0081, 1.0061, 1); --spring-s: linear(0.0, 0.0117, 0.0434, 0.0905, 0.1489, 0.2153, 0.2864, 0.3599, 0.4335, 0.5056, 0.5749, 0.6403, 0.7012, 0.757, 0.8075, 0.8525, 0.8921, 0.9264, 0.9558, 0.9805, 1.0008, 1.0172, 1.03, 1.0396, 1.0465, 1.051, 1.0535, 1.0543, 1.0537, 1.052, 1.0495, 1.0463, 1.0427, 1.0389, 1.0349, 1.0309, 1.027, 1.0232, 1.0197, 1.0163, 1.0133, 1.0106, 1.0081, 1.0059, 1); --spring-sheet: linear(0.0, 0.0208, 0.0763, 0.1565, 0.2529, 0.3582, 0.466, 0.5716, 0.6713, 0.7623, 0.8429, 0.9121, 0.9697, 1.0159, 1.0514, 1.0771, 1.094, 1.1035, 1.1068, 1.1051, 1.0995, 1.0912, 1.0811, 1.0699, 1.0584, 1.047, 1.0363, 1.0265, 1.0177, 1.0102, 1.0039, 0.9988, 0.9949, 0.992, 0.9901, 0.989, 0.9886, 0.9887, 0.9893, 0.9901, 0.9912, 0.9924, 0.9936, 0.9948, 1); --spring-n: linear(0.0, 0.0209, 0.0768, 0.1581, 0.2563, 0.3639, 0.4746, 0.5834, 0.6862, 0.7802, 0.8634, 0.9347, 0.9938, 1.0408, 1.0763, 1.1014, 1.1172, 1.1249, 1.126, 1.1219, 1.1137, 1.1026, 1.0897, 1.0759, 1.062, 1.0484, 1.0357, 1.0243, 1.0142, 1.0057, 0.9987, 0.9933, 0.9892, 0.9864, 0.9848, 0.9841, 0.9842, 0.9849, 0.9861, 0.9875, 0.9892, 0.991, 0.9927, 0.9944, 1); --spring: var(--spring-n); }
+  :root { --spring-b: linear(0.0, 0.034, 0.1244, 0.2537, 0.4055, 0.5653, 0.721, 0.8632, 0.9854, 1.0836, 1.1564, 1.204, 1.2285, 1.2331, 1.2215, 1.1977, 1.1658, 1.1296, 1.0923, 1.0565, 1.0243, 0.9971, 0.9756, 0.9601, 0.9504, 0.9459, 0.9459, 0.9494, 0.9555, 0.9633, 0.9719, 0.9806, 0.9888, 0.996, 1.0021, 1.0067, 1.01, 1.012, 1.0127, 1.0125, 1.0115, 1.01, 1.0081, 1.0061, 1); --spring-s: linear(0.0, 0.0117, 0.0434, 0.0905, 0.1489, 0.2153, 0.2864, 0.3599, 0.4335, 0.5056, 0.5749, 0.6403, 0.7012, 0.757, 0.8075, 0.8525, 0.8921, 0.9264, 0.9558, 0.9805, 1.0008, 1.0172, 1.03, 1.0396, 1.0465, 1.051, 1.0535, 1.0543, 1.0537, 1.052, 1.0495, 1.0463, 1.0427, 1.0389, 1.0349, 1.0309, 1.027, 1.0232, 1.0197, 1.0163, 1.0133, 1.0106, 1.0081, 1.0059, 1); --spring-sheet: linear(0.0, 0.0152, 0.0553, 0.1134, 0.1835, 0.2608, 0.3412, 0.4218, 0.5001, 0.5744, 0.6434, 0.7065, 0.7633, 0.8134, 0.8572, 0.8947, 0.9264, 0.9528, 0.9743, 0.9914, 1.0048, 1.0148, 1.0221, 1.027, 1.0299, 1.0313, 1.0315, 1.0307, 1.0292, 1.0272, 1.0249, 1.0224, 1.0198, 1.0173, 1.0149, 1.0126, 1.0105, 1.0086, 1.0069, 1.0053, 1); --spring-n: linear(0.0, 0.0209, 0.0768, 0.1581, 0.2563, 0.3639, 0.4746, 0.5834, 0.6862, 0.7802, 0.8634, 0.9347, 0.9938, 1.0408, 1.0763, 1.1014, 1.1172, 1.1249, 1.126, 1.1219, 1.1137, 1.1026, 1.0897, 1.0759, 1.062, 1.0484, 1.0357, 1.0243, 1.0142, 1.0057, 0.9987, 0.9933, 0.9892, 0.9864, 0.9848, 0.9841, 0.9842, 0.9849, 0.9861, 0.9875, 0.9892, 0.991, 0.9927, 0.9944, 1); --spring: var(--spring-n); }
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--ink); }
@@ -232,9 +235,24 @@ button { cursor: pointer; border: 0; background: none; padding: 0; }
 }
 
 /* ---------- boot + auth ---------- */
-.boot { position: fixed; inset: 0; display: grid; place-items: center; z-index: 90; background: var(--bg); }
-.boot .dot { width: 54px; height: 54px; border-radius: 50%; background: var(--accent); animation: breathe 1.2s ease-in-out infinite; }
-.boot p { position: absolute; bottom: 30%; left: 0; right: 0; text-align: center; color: var(--muted); padding: 0 24px; font-weight: 700; }
+.boot { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: var(--bg); }
+.boot .boot-msg { display: flex; flex-direction: column; align-items: center; gap: 12px; max-width: 320px; padding: 0 24px; text-align: center; }
+.boot .boot-msg[hidden] { display: none !important; }
+.boot .boot-msg p { margin: 0; color: var(--muted); font-weight: 700; font-size: .92rem; line-height: 1.4; }
+.boot .boot-msg button { padding: 11px 22px; }
+#splashFx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.sp-stage { position: relative; width: 150px; height: 150px; }
+.sp-circle { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; transform: scale(0); }
+.sp-bg { fill: var(--surface); }
+.sp-ring { stroke: var(--accent); fill: none; }
+.sp-liquid { fill: var(--accent); transform: translateY(118px); }
+.sp-liquid2 { fill: var(--accent-2); opacity: .55; transform: translateY(124px); }
+.sp-check { fill: none; stroke: var(--accent-ink); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 64; stroke-dashoffset: 64; }
+.sp-ripple { position: absolute; left: 50%; top: 50%; width: 100px; height: 100px; margin: -50px 0 0 -50px; border-radius: 50%; border: 4px solid var(--accent); opacity: 0; pointer-events: none; }
+.sp-cursor { position: absolute; left: 0; top: 0; width: 38px; height: 38px; opacity: 0; filter: drop-shadow(0 6px 8px rgba(0,0,0,.28)); transform-origin: 6px 4px; }
+.sp-cursor path { fill: var(--ink); stroke: var(--bg); stroke-width: 1.6; stroke-linejoin: round; }
+.sp-name { font-family: var(--display); font-size: 2rem; line-height: 1; margin: 0; opacity: 0; letter-spacing: -.01em; }
+.sp-line { margin: -10px 0 0; color: var(--muted); font-weight: 800; font-size: .9rem; opacity: 0; }
 @keyframes breathe { 50% { transform: scale(.82); opacity: .7; } }
 
 .auth { min-height: 100dvh; display: grid; place-items: center; position: relative; z-index: 1;
@@ -627,7 +645,134 @@ input[type=date], input[type=time] { min-height: 48px; }
 <canvas id="ambient" aria-hidden="true"></canvas>
 <canvas id="fx" aria-hidden="true"></canvas>
 
-<div class="boot" id="boot"><div class="dot"></div><p id="bootMsg"></p></div>
+<div class="boot" id="boot" aria-label="Loading Daily Tasks">
+  <canvas id="splashFx" aria-hidden="true"></canvas>
+  <div class="sp-stage" aria-hidden="true">
+    <svg class="sp-circle" id="spCircle" viewBox="0 0 120 120">
+      <defs><clipPath id="spClip"><circle cx="60" cy="60" r="44"/></clipPath></defs>
+      <circle class="sp-bg" cx="60" cy="60" r="44"/>
+      <g clip-path="url(#spClip)">
+        <g class="sp-liquid2" id="spLiq2"><path id="spWave2" d="M-120 22 Q-105 30 -90 22 T-60 22 T-30 22 T0 22 T30 22 T60 22 T90 22 T120 22 T150 22 T180 22 T210 22 T240 22 V170 H-120 Z"/></g>
+        <g class="sp-liquid" id="spLiq"><path id="spWave" d="M-120 20 Q-105 11 -90 20 T-60 20 T-30 20 T0 20 T30 20 T60 20 T90 20 T120 20 T150 20 T180 20 T210 20 T240 20 V170 H-120 Z"/></g>
+      </g>
+      <circle class="sp-ring" cx="60" cy="60" r="44" stroke-width="7"/>
+      <path class="sp-check" id="spCheck" d="M41 61 L54 74 L80 47"/>
+    </svg>
+    <div class="sp-ripple" id="spRipple"></div>
+    <svg class="sp-cursor" id="spCursor" viewBox="0 0 24 24"><path d="M5 2.5 L5 19.5 L9.3 15.4 L12.2 21.6 L15 20.3 L12.2 14.2 L18.2 14.2 Z"/></svg>
+  </div>
+  <p class="sp-name" id="spName">Daily Tasks</p>
+  <p class="sp-line" id="spLine"></p>
+  <div class="boot-msg" id="bootMsgWrap" hidden><p id="bootMsg"></p><button type="button" class="primary" id="bootReload">Try again</button></div>
+</div>
+<script>
+/* Launch splash: a cursor taps the circle, it fills like liquid, a check draws in, and particles pop.
+   Colors come from the current season theme. It hides once the app is ready (at least ~1.5s). */
+(function () {
+  var boot = document.getElementById('boot');
+  var theme = DT.THEMES[DT.current] || {};
+  document.getElementById('spLine').textContent = DT.holidayLine(DT.current, new Date());
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var can = !!document.body.animate;
+  var animDone = false, appReady = false, gone = false;
+  // The animation is done after 1.65s no matter what happens below.
+  setTimeout(function () { animDone = true; finish(); }, 1650);
+  var cssv = function (n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); };
+  var springCss = (DT.waapiLinear && cssv('--spring-b')) || 'cubic-bezier(.34,1.7,.5,1)';
+  var softCss = (DT.waapiLinear && cssv('--spring-s')) || 'cubic-bezier(.3,1.25,.5,1)';
+  function $(id) { return document.getElementById(id); }
+  function a(el, frames, opts) {
+    if (!can || !el) return null;
+    try { return el.animate(frames, Object.assign({ fill: 'both' }, opts)); }
+    catch (e) { try { return el.animate(frames, Object.assign({ fill: 'both' }, opts, { easing: 'ease-out' })); } catch (e2) { return null; } }
+  }
+  function hideNow() { gone = true; boot.hidden = true; boot.style.display = 'none'; }
+
+  // particles
+  var cv = $('splashFx'), ctx = cv.getContext('2d'), parts = [], raf = 0;
+  function size() { var d = Math.min(2, devicePixelRatio || 1); cv.width = innerWidth * d; cv.height = innerHeight * d; ctx.setTransform(d, 0, 0, d, 0, 0); }
+  size();
+  function burst(x, y) {
+    var cols = theme.fx || ['#ff8b3d', '#ffd36b'];
+    for (var i = 0; i < 42; i++) {
+      var ang = Math.random() * Math.PI * 2, sp = 2.2 + Math.random() * 5.5;
+      parts.push({ x: x, y: y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - 1.5, g: .12 + Math.random() * .06, life: 1, dec: .014 + Math.random() * .012,
+        s: 3 + Math.random() * 5, r: Math.random() * 6.3, vr: (Math.random() - .5) * .3, c: cols[i % cols.length], sh: i % 3 });
+    }
+    if (!raf) raf = requestAnimationFrame(loop);
+  }
+  function loop() {
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    parts = parts.filter(function (p) { return p.life > 0; });
+    parts.forEach(function (p) {
+      p.vx *= .985; p.vy = p.vy * .985 + p.g; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life -= p.dec;
+      ctx.save(); ctx.globalAlpha = Math.max(0, Math.min(1, p.life * 1.5)); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c;
+      if (p.sh === 0) ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2);
+      else if (p.sh === 1) { ctx.beginPath(); ctx.arc(0, 0, p.s / 2.3, 0, 6.283); ctx.fill(); }
+      else { ctx.beginPath(); for (var i = 0; i < 10; i++) { var rr = i % 2 ? p.s * .32 : p.s * .75, an = i * Math.PI / 5 - Math.PI / 2; ctx.lineTo(Math.cos(an) * rr, Math.sin(an) * rr); } ctx.closePath(); ctx.fill(); }
+      ctx.restore();
+    });
+    raf = parts.length ? requestAnimationFrame(loop) : 0;
+  }
+
+  function finish() {
+    if (gone || !animDone || !appReady) return;
+    gone = true;
+    setTimeout(hideNow, 700);   // backup in case the fade-out never reports back
+    var out = a(boot, [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(1.06)' }], { duration: 380, easing: 'cubic-bezier(.4,0,.2,1)' });
+    var shown = !document.getElementById('app').hidden ? document.querySelector('#app .wrap') : document.querySelector('#auth .auth-card');
+    if (shown) a(shown, [{ opacity: 0, transform: 'translateY(16px) scale(.98)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 120, easing: softCss, fill: 'none' });
+    var end = function () { boot.hidden = true; boot.style.display = 'none'; };
+    if (out) out.onfinish = end; else end();
+  }
+  window.dtBootDone = function () { appReady = true; finish(); setTimeout(hideNow, 3000); };
+  boot.addEventListener('click', function () { if (appReady) hideNow(); });
+
+  if (reduced || !can) {
+    $('spCircle').style.transform = 'none'; $('spLiq').style.transform = 'translateY(-14px)'; $('spCheck').style.strokeDashoffset = '0';
+    $('spName').style.opacity = 1; $('spLine').style.opacity = 1;
+    return;
+  }
+
+  var stage = document.querySelector('.sp-stage');
+  // 1) circle pops in, name rises
+  a($('spCircle'), [{ transform: 'scale(0)' }, { transform: 'scale(1)' }], { duration: 460, easing: springCss });
+  a($('spName'), [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 120, easing: softCss });
+  a($('spLine'), [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 220, easing: softCss });
+  // waves keep flowing sideways the whole time
+  a($('spWave'), [{ transform: 'translateX(0)' }, { transform: 'translateX(60px)' }], { duration: 900, iterations: Infinity, easing: 'linear', fill: 'none' });
+  a($('spWave2'), [{ transform: 'translateX(60px)' }, { transform: 'translateX(0)' }], { duration: 1300, iterations: Infinity, easing: 'linear', fill: 'none' });
+  // 2) cursor glides in on a curve and taps the middle (tip of the arrow lands at the center)
+  var cx = 75 - 6, cy = 75 - 4;
+  a($('spCursor'), [
+    { opacity: 0, transform: 'translate(' + (cx + 90) + 'px,' + (cy + 120) + 'px) rotate(18deg) scale(1)' },
+    { opacity: 1, transform: 'translate(' + (cx + 52) + 'px,' + (cy + 46) + 'px) rotate(10deg) scale(1)', offset: .35 },
+    { opacity: 1, transform: 'translate(' + cx + 'px,' + cy + 'px) rotate(0deg) scale(1)', offset: .78 },
+    { opacity: 1, transform: 'translate(' + cx + 'px,' + cy + 'px) rotate(0deg) scale(.78)', offset: .9 },
+    { opacity: 1, transform: 'translate(' + cx + 'px,' + cy + 'px) rotate(0deg) scale(1)' }
+  ], { duration: 820, delay: 260, easing: 'cubic-bezier(.25,.8,.3,1)' });
+  setTimeout(function () { try {
+    // 3) the tap: circle squishes, a ripple rings out, liquid floods up
+    a($('spCircle'), [{ transform: 'scale(1)' }, { transform: 'scale(.9)', offset: .25 }, { transform: 'scale(1)' }], { duration: 460, easing: 'cubic-bezier(.3,1.6,.5,1)' });
+    a($('spRipple'), [{ opacity: .8, transform: 'scale(.85)' }, { opacity: 0, transform: 'scale(1.9)' }], { duration: 600, easing: 'cubic-bezier(.2,.7,.3,1)' });
+    a($('spLiq2'), [{ transform: 'translateY(124px)' }, { transform: 'translateY(-10px)' }], { duration: 620, easing: 'cubic-bezier(.3,.9,.35,1)' });
+    a($('spLiq'), [{ transform: 'translateY(118px)' }, { transform: 'translateY(-14px)' }], { duration: 700, delay: 60, easing: 'cubic-bezier(.3,.9,.35,1)' });
+    // cursor drifts away
+    a($('spCursor'), [{ opacity: 1, transform: 'translate(' + cx + 'px,' + cy + 'px) scale(1)' }, { opacity: 0, transform: 'translate(' + (cx + 46) + 'px,' + (cy + 60) + 'px) rotate(14deg) scale(.9)' }], { duration: 420, delay: 160, easing: 'cubic-bezier(.4,0,.6,1)' });
+    try { navigator.vibrate && navigator.vibrate(10); } catch (e) {}
+  } catch (e) {} }, 260 + 820 * .82);
+  setTimeout(function () { try {
+    // 4) check draws, the circle pops, particles fly
+    $('spCircle').style.transform = 'none';
+    $('spLiq').style.transform = 'translateY(-14px)'; $('spLiq2').style.transform = 'translateY(-10px)';
+    $('spCheck').style.transition = 'stroke-dashoffset .3s cubic-bezier(.5,0,.3,1)';
+    requestAnimationFrame(function () { $('spCheck').style.strokeDashoffset = '0'; });
+    a($('spCircle'), [{ transform: 'scale(.92)' }, { transform: 'scale(1)' }], { duration: 460, easing: springCss });
+    var r = stage.getBoundingClientRect();
+    burst(r.left + r.width / 2, r.top + r.height / 2);
+  } catch (e) { $('spCheck').style.strokeDashoffset = '0'; } }, 1220);
+})();
+</script>
 
 <!-- Sign in -->
 <section class="auth" id="auth" hidden>
@@ -864,7 +1009,7 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = n => String(n).padStart(2, '0');
 const vibrate = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
-const CAN_LINEAR = window.CSS && CSS.supports && CSS.supports('animation-timing-function', 'linear(0, 1)');
+const CAN_LINEAR = DT.waapiLinear && window.CSS && CSS.supports && CSS.supports('animation-timing-function', 'linear(0, 1)');
 const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const SPRING_RAW = { b: () => CAN_LINEAR ? cssVar('--spring-b') : 'cubic-bezier(.34,1.8,.5,1)', s: () => CAN_LINEAR ? cssVar('--spring-s') : 'cubic-bezier(.3,1.25,.5,1)', n: () => CAN_LINEAR ? cssVar('--spring-n') : 'cubic-bezier(.3,1.5,.5,1)' };
 const D = { b: 460, s: 332, n: 293 };
@@ -1327,7 +1472,7 @@ try { const le = localStorage.getItem('dt.lastEmail'); if (le) $('#aEmail').valu
 onAuthStateChanged(auth, user => {
   stopListeners();
   S.user = user;
-  $('#boot').hidden = true;
+  window.dtBootDone ? window.dtBootDone() : ($('#boot').hidden = true);
   if (!user) { $('#app').hidden = true; $('#auth').hidden = false; setAuthMode('in'); return; }
   $('#auth').hidden = true; $('#app').hidden = false;
   requestAnimationFrame(() => moveTabInd(true));
@@ -2496,8 +2641,15 @@ setInterval(() => { if (!document.hidden && S.user) requestRender(); }, 60000);
 <script>
 // If the app code can't load (first visit with no connection), say so instead of spinning forever.
 setTimeout(function () {
-  if (!window.__dtLoaded) document.getElementById('bootMsg').textContent = "Couldn't load the app. Check your internet connection and reload.";
-}, 9000);
+  if (window.__dtLoaded) return;
+  // Only say something is wrong when it really is: offline, or still loading after 10 seconds.
+  document.getElementById('bootMsg').textContent = navigator.onLine === false
+    ? "You're offline. Connect to the internet and tap Try again."
+    : 'This is taking longer than usual. Check your connection, or tap Try again.';
+  document.getElementById('bootMsgWrap').hidden = false;
+}, 10000);
+document.getElementById('bootReload').addEventListener('click', function () { location.reload(); });
+addEventListener('online', function () { if (!window.__dtLoaded) location.reload(); });
 </script>
 </body>
 </html>
