@@ -686,7 +686,8 @@ input[type=date], input[type=time] { min-height: 48px; }
     try { return el.animate(frames, Object.assign({ fill: 'both' }, opts)); }
     catch (e) { try { return el.animate(frames, Object.assign({ fill: 'both' }, opts, { easing: 'ease-out' })); } catch (e2) { return null; } }
   }
-  function hideNow() { gone = true; boot.hidden = true; boot.style.display = 'none'; }
+  function intro() { if (window.dtIntro) window.dtIntro(); }
+  function hideNow() { gone = true; boot.hidden = true; boot.style.display = 'none'; intro(); }
 
   // particles
   var cv = $('splashFx'), ctx = cv.getContext('2d'), parts = [], raf = 0;
@@ -720,8 +721,9 @@ input[type=date], input[type=time] { min-height: 48px; }
     gone = true;
     setTimeout(hideNow, 700);   // backup in case the fade-out never reports back
     var out = a(boot, [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(1.06)' }], { duration: 380, easing: 'cubic-bezier(.4,0,.2,1)' });
-    var shown = !document.getElementById('app').hidden ? document.querySelector('#app .wrap') : document.querySelector('#auth .auth-card');
-    if (shown) a(shown, [{ opacity: 0, transform: 'translateY(16px) scale(.98)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: 120, easing: softCss, fill: 'none' });
+    var shown = !document.getElementById('app').hidden ? document.querySelector('#app .top') : document.querySelector('#auth .auth-card');
+    if (shown) a(shown, [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 80, easing: softCss, fill: 'none' });
+    intro();   // tasks pop in once, right as the splash fades
     var end = function () { boot.hidden = true; boot.style.display = 'none'; };
     if (out) out.onfinish = end; else end();
   }
@@ -1218,6 +1220,7 @@ const S = {
   user: null, refs: null, unsub: [],
   tasks: new Map(), ideas: new Map(), stats: { total: 0, daily: {} }, statsLoaded: false,
   folders: new Map(), ideaFilter: 'all', composeFolder: null,
+  booting: !!document.getElementById('boot') && !document.getElementById('boot').hidden, waitBoot: false,
   loaded: { tasks: false, ideas: false, folders: false },
   tab: 'today', seen: new Set(), cls: null, themeKey: DT.current, ideasDoneOpen: false, completedOpen: false
 };
@@ -1469,15 +1472,30 @@ $('#aForgot').addEventListener('click', async () => {
 });
 try { const le = localStorage.getItem('dt.lastEmail'); if (le) $('#aEmail').value = le; } catch (e) {}
 
+function bootReady() {
+  if (!S.waitBoot) return;
+  S.waitBoot = false;
+  window.dtBootDone ? window.dtBootDone() : ($('#boot').hidden = true);
+}
+// While the splash is up, lists are built quietly; their pop-in plays once when it fades.
+window.dtIntro = () => {
+  if (!S.booting) return;
+  S.booting = false;
+  renderProgress();
+  markEntrances();
+  const el = $('#totalNum');
+  if (S.stats.total > 0 && !REDUCED) animateNum(el, 0, S.stats.total, 700);
+};
 onAuthStateChanged(auth, user => {
   stopListeners();
   S.user = user;
-  window.dtBootDone ? window.dtBootDone() : ($('#boot').hidden = true);
-  if (!user) { $('#app').hidden = true; $('#auth').hidden = false; setAuthMode('in'); return; }
+  if (!user) { S.waitBoot = true; bootReady(); $('#app').hidden = true; $('#auth').hidden = false; setAuthMode('in'); return; }
   $('#auth').hidden = true; $('#app').hidden = false;
   requestAnimationFrame(() => moveTabInd(true));
   $('#mEmail').textContent = user.email || 'Signed in';
+  S.waitBoot = true;
   startListeners(user.uid);
+  setTimeout(bootReady, 2500);   // don't wait forever if the data is slow
 });
 
 function stopListeners() {
@@ -1498,6 +1516,7 @@ function startListeners(uid) {
   S.unsub.push(onSnapshot(S.refs.tasks, snap => {
     const m = new Map(); snap.forEach(d => m.set(d.id, { id: d.id, ...d.data() }));
     S.tasks = m; S.loaded.tasks = true; requestRender();
+    if (S.waitBoot) requestAnimationFrame(bootReady);
   }, onErr));
   S.unsub.push(onSnapshot(S.refs.ideas, snap => {
     const m = new Map(); snap.forEach(d => m.set(d.id, { id: d.id, ...d.data() }));
@@ -1627,8 +1646,7 @@ function taskRow(t, ctx, i) {
   if (rep) chips.push(`<span class="chip">${t.repeat === 'dates' ? ICON.cal : ICON.repeat} ${esc(repeatShort(t))}</span>`);
   if (sticky && !done) chips.push(`<span class="chip soft">${ICON.pin} ${esc(repeatShort(t))}</span>`);
   if (t.timeSpent >= 60000) chips.push(`<span class="chip">${ICON.focus} ${fmtDur(t.timeSpent)}</span>`);
-  const isNew = !S.seen.has(t.id);
-  return `<li class="row task ${done ? 'is-done' : ''} ${isNew ? 'enter' : ''}" style="--i:${Math.min(i, 12)}" data-id="${t.id}" data-kind="task" data-ctx="${ctx}">
+  return `<li class="row task ${done ? 'is-done' : ''}" data-id="${t.id}" data-kind="task" data-ctx="${ctx}">
     <button class="check" data-act="toggle" aria-label="${done ? 'Undo' : 'Check off'} ${esc(t.title)}">${ICON.check}</button>
     <button class="rbody" data-act="edit" aria-label="Edit ${esc(t.title)}">
       <div class="rtitle"><span class="t">${esc(t.title)}</span></div>
@@ -1691,6 +1709,19 @@ function renderAll() {
   if (S.tab === 'schedule') renderSchedule();
   if (S.tab === 'ideas') renderIdeas();
   playFlip(before);
+  markEntrances();
+}
+function markEntrances() {
+  if (S.booting) return;
+  const v = viewEl();
+  if (v) {
+    let i = 0;
+    v.querySelectorAll('.row[data-id]').forEach(el => {
+      if (S.seen.has(el.dataset.id)) return;
+      el.style.setProperty('--i', Math.min(i++, 12));
+      el.classList.add('enter');
+    });
+  }
   for (const id of S.tasks.keys()) S.seen.add(id);
   for (const id of S.ideas.keys()) S.seen.add(id);
 }
@@ -1705,7 +1736,7 @@ function renderProgress() {
   const left = c.overdue.length + c.today.length + c.sticky.length;
   const total = done + left;
   const pct = total ? done / total : 0;
-  $('#ringPrg').style.strokeDashoffset = String(169.65 * (1 - pct));
+  $('#ringPrg').style.strokeDashoffset = String(169.65 * (1 - (S.booting ? 0 : pct)));
   if (S.lastDone != null && done > S.lastDone) anim($('#ring'), [{ transform: 'scale(1.16) rotate(-8deg)' }, { transform: 'none' }], { duration: D.b, easing: SPRING.b() });
   S.lastDone = done;
   $('#ringNum').innerHTML = total && !left ? `<span style="color:var(--accent)">${ICON.star.replace('<svg', '<svg width="22" height="22"')}</span>` : `${done}/${total}`;
@@ -1750,11 +1781,10 @@ try { const f = localStorage.getItem('dt.ideaFilter'); if (f) S.ideaFilter = f; 
 const inFilter = d => S.ideaFilter === 'all' ? true : S.ideaFilter === 'none' ? !folderOf(d) : d.folderId === S.ideaFilter;
 
 function ideaRow(d, i) {
-  const isNew = !S.seen.has(d.id);
   const when = d.createdAt ? fmtDay(d.createdAt) + ', ' + fmtTime(d.createdAt) : '';
   const f = folderOf(d);
   const chip = S.ideaFilter === 'all' && f ? `<span class="chip folder" data-act="move" style="--c:${f.color}"><span class="fdot"></span>${esc(f.name)}</span>` : '';
-  return `<li class="row idea ${d.done ? 'is-done' : ''} ${isNew ? 'enter' : ''}" style="--i:${Math.min(i, 12)}" data-id="${d.id}" data-kind="idea">
+  return `<li class="row idea ${d.done ? 'is-done' : ''}" data-id="${d.id}" data-kind="idea">
     <button class="check" data-act="toggle" aria-label="${d.done ? 'Uncheck' : 'Check off'} idea">${ICON.check}</button>
     <button class="rbody" data-act="move" aria-label="Move to a folder"><div class="rtitle"><span class="t">${esc(d.text)}</span></div><div class="rmeta">${chip}<span class="when">${esc(when)}</span></div></button>
     <button class="ract del" data-act="delete" aria-label="Delete idea">${ICON.trash}</button>
@@ -2625,6 +2655,8 @@ try { const u = new URL(location.href); if (u.searchParams.has('v')) { u.searchP
 setInterval(checkForUpdate, 30000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) setTimeout(checkForUpdate, 1500); });
 setTimeout(checkForUpdate, 5000);
+
+setTimeout(() => { if (S.booting && window.dtIntro) window.dtIntro(); }, 7000);
 
 /* ================= boot ================= */
 FX.resize();
