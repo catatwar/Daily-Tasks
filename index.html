@@ -639,6 +639,14 @@ input[type=date], input[type=time] { min-height: 48px; }
 .plus1 { position: fixed; z-index: 86; pointer-events: none; font-weight: 900; font-size: 1.15rem; color: var(--accent); text-shadow: 0 2px 8px rgba(0,0,0,.18); }
 .dial.tick { animation: jelly .55s ease-out; }
 
+/* Editor: repeat scope + calendar switch */
+.scope { display: flex; flex-direction: column; gap: 8px; margin: -6px 0 16px; padding: 12px; border-radius: 16px; background: color-mix(in srgb, var(--accent) 10%, var(--surface-2)); }
+.scope-lbl { font-size: .74rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.scope .seg button { flex: 1; }
+.scope .seg { flex-wrap: nowrap; }
+#calRow { margin: 0; }
+.form .field.gone { display: none; }
+
 /* Calendar tab */
 .calv-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 2px 12px; }
 .calv-head h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 1.7rem; line-height: 1.05; min-width: 0; }
@@ -930,6 +938,10 @@ input[type=date], input[type=time] { min-height: 48px; }
   <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="editTitle">
     <div class="grab-zone" aria-hidden="true"><div class="grab"></div></div>
     <h2 id="editTitle">New task</h2>
+    <div class="scope" id="scopeWrap" hidden>
+      <span class="scope-lbl">This repeats. Change</span>
+      <div class="seg" id="fScope"><button type="button" data-v="all">All repeats</button><button type="button" data-v="one" id="fScopeOne">Only this one</button></div>
+    </div>
     <form class="form" id="taskForm" novalidate>
       <label class="field"><span>What needs doing?</span><input id="fTitle" type="text" maxlength="140" placeholder="Math homework" autocomplete="off"></label>
       <label class="field"><span>Notes</span><textarea id="fNotes" rows="2" maxlength="1000" placeholder="Optional"></textarea></label>
@@ -956,6 +968,7 @@ input[type=date], input[type=time] { min-height: 48px; }
           <div class="cal-foot"><span id="calCount">No days picked yet</span><button type="button" id="calClear">Clear</button></div>
         </div>
       </div>
+      <div class="setrow" id="calRow"><div>Show on calendar<small id="calHint">It appears on the Calendar tab on its days</small></div><button type="button" class="switch" id="fCal" role="switch" aria-checked="true" aria-label="Show on calendar"></button></div>
       <p class="summary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2.5l3 3-3 3"/><path d="M4 11.5v-1a5 5 0 0 1 5-5h11M7 21.5l-3-3 3-3"/><path d="M20 12.5v1a5 5 0 0 1-5 5H4"/></svg><span id="fSummary"></span></p>
       <div class="actions">
         <button type="button" class="ghost danger" id="fDelete">Delete</button>
@@ -1146,7 +1159,7 @@ function anchorOf(t) {
 }
 
 // First occurrence strictly after `after` (ms), never before the anchor.
-function nextOccurrence(t, after) {
+function baseNext(t, after) {
   const A = anchorOf(t), Am = A.getTime(), every = Math.max(1, Math.floor(t.every || 1));
   const h = A.getHours(), mi = A.getMinutes();
   const ok = c => c > after && c >= Am;
@@ -1217,6 +1230,16 @@ function nextOccurrence(t, after) {
 const REPEATING = ['hourly', 'daily', 'weekly', 'monthly', 'yearly', 'dates'];
 const isRep = t => REPEATING.includes(t.repeat);
 
+// A repeat can skip single days (when one was moved or skipped on its own).
+const skipKey = (t, x) => { const d = new Date(x); return t.repeat === 'hourly' ? `${dayKey(x)}T${pad(d.getHours())}:${pad(d.getMinutes())}` : dayKey(x); };
+function nextOccurrence(t, after) {
+  let x = baseNext(t, after);
+  if (!t.skips || !t.skips.length) return x;
+  const sk = new Set(t.skips);
+  for (let n = 0; x != null && sk.has(skipKey(t, x)) && n < 500; n++) x = baseNext(t, x);
+  return x;
+}
+
 // When a task is created or its schedule changes: today's occurrence counts, even if its time already passed.
 function initialDue(t, now = Date.now()) {
   if (t.repeat === 'sticky') return startOfDay(t.date ? anchorOf(t).getTime() : now);
@@ -1260,7 +1283,7 @@ function repeatShort(t) {
     case 'monthly': return e > 1 ? `Every ${e} months` : 'Monthly';
     case 'yearly': return e > 1 ? `Every ${e} years` : 'Yearly';
     case 'dates': {
-      const left = (t.dates || []).filter(d => d >= todayKey()).length;
+      const left = (t.dates || []).filter(d => d >= todayKey() && !(t.skips || []).includes(d)).length;
       return left ? `${left} day${left > 1 ? 's' : ''} left` : 'Picked days';
     }
     case 'sticky': {
@@ -1778,6 +1801,7 @@ function taskRow(t, ctx, i) {
   if (rep) chips.push(`<span class="chip">${t.repeat === 'dates' ? ICON.cal : ICON.repeat} ${esc(repeatShort(t))}</span>`);
   if (sticky && !done) chips.push(`<span class="chip soft">${ICON.pin} ${esc(repeatShort(t))}</span>`);
   if (t.timeSpent >= 60000) chips.push(`<span class="chip">${ICON.focus} ${fmtDur(t.timeSpent)}</span>`);
+  if (t.hideCal && ctx === 'schedule') chips.push(`<span class="chip">${ICON.cal} Not on calendar</span>`);
   return `<li class="row task ${done ? 'is-done' : ''}" data-id="${t.id}" data-kind="task" data-ctx="${ctx}">
     <button class="check" data-act="toggle" aria-label="${done ? 'Undo' : 'Check off'} ${esc(t.title)}">${ICON.check}</button>
     <button class="rbody" data-act="edit" aria-label="Edit ${esc(t.title)}">
@@ -1973,6 +1997,7 @@ function calendarMonth(y, m) {
   const day = k => { if (!days.has(k)) days.set(k, { due: [], done: [], sess: [], focus: 0 }); return days.get(k); };
   const inMonth = ms => ms >= start && ms <= end;
   for (const t of S.tasks.values()) {
+    if (t.hideCal) continue;
     const rep = isRep(t);
     // focus sessions
     for (const s of (t.sessions || [])) if (inMonth(s.start)) { const d = day(dayKey(s.start)); d.sess.push({ t, s }); d.focus += s.ms || 0; }
@@ -2058,7 +2083,7 @@ function calRow(item, kind) {
   if (isRep(t)) chips.push(`<span class="chip">${t.repeat === 'dates' ? ICON.cal : ICON.repeat} ${esc(repeatShort(t))}</span>`);
   if (item.sticky) chips.push(`<span class="chip soft">${ICON.pin} ${esc(repeatShort(t))}</span>`);
   if ((t.timeSpent || 0) >= 60000) chips.push(`<span class="chip">${ICON.focus} ${fmtFocus(t.timeSpent)}</span>`);
-  return `<li class="row crow ${done ? 'is-done' : ''} ${item.over ? 'over' : ''}" data-tid="${t.id}"><span class="tm">${esc(time)}</span>
+  return `<li class="row crow ${done ? 'is-done' : ''} ${item.over ? 'over' : ''}" data-tid="${t.id}" data-at="${done || !isRep(t) ? '' : item.at}"><span class="tm">${esc(time)}</span>
     <button class="rbody" data-cact="edit"><div class="rtitle"><span class="t">${esc(t.title)}</span></div>${t.notes ? `<div class="rnote">${esc(t.notes.split('\n')[0])}</div>` : ''}${chips.length ? `<div class="rmeta">${chips.join('')}</div>` : ''}</button>
     <span class="st">${done ? ICON_DONE : ICON_DUE}</span></li>`;
 }
@@ -2113,7 +2138,8 @@ $('#cvDay').addEventListener('click', e => {
   if (e.target.closest('#cvAdd')) { Snd.tap(); openEditor(null, CV.sel); return; }
   const b = e.target.closest('[data-cact]'); if (!b) return;
   const id = b.closest('[data-tid]').dataset.tid; if (!S.tasks.has(id)) return;
-  if (b.dataset.cact === 'timer') openTimer(id); else openEditor(id);
+  const at = b.closest('[data-tid]').dataset.at;
+  if (b.dataset.cact === 'timer') openTimer(id); else openEditor(id, null, at ? +at : null);
 });
 // swipe the month left or right
 (() => {
@@ -2599,14 +2625,21 @@ function toast(msg, actLabel, act) {
 }
 
 /* ================= task editor ================= */
-const ED = { id: null, repeat: 'none', days: [], dates: [], cal: null };
+const ED = { id: null, repeat: 'none', days: [], dates: [], cal: null, scope: 'all', occ: null, showCal: true, saved: null };
 const fTitle = $('#fTitle'), fNotes = $('#fNotes'), fDate = $('#fDate'), fTime = $('#fTime'), fEvery = $('#fEvery');
 $('#fDays').innerHTML = DOW.map((d, i) => `<button type="button" data-d="${i}" aria-label="${DOWL[i]}">${d[0]}${d[1]}</button>`).join('');
 const NO_EVERY = ['none', 'sticky', 'dates'];
 
-function openEditor(id, presetDate) {
+// occ = which repeat was tapped (its time). undefined means "the one that's due next"; null means none.
+function openEditor(id, presetDate, occ) {
   const t = id ? S.tasks.get(id) : null;
   ED.id = t ? id : null;
+  ED.scope = 'all';
+  ED.occ = t && isRep(t) && !t.done ? (occ === undefined ? (t.nextDue ?? null) : occ) : null;
+  ED.showCal = !t?.hideCal;
+  ED.saved = null;
+  $('#scopeWrap').hidden = ED.occ == null;
+  if (ED.occ != null) $('#fScopeOne').textContent = `Only ${occName(ED.occ)}`;
   $('#editTitle').textContent = t ? 'Edit task' : 'New task';
   fTitle.value = t?.title || ''; fNotes.value = t?.notes || '';
   fDate.value = t ? (t.date || '') : (presetDate || todayKey());
@@ -2626,7 +2659,7 @@ function openEditor(id, presetDate) {
 }
 function draft() {
   const ex = ED.id ? S.tasks.get(ED.id) : null;
-  const r = ED.repeat;
+  const r = ED.scope === 'one' ? 'none' : ED.repeat;
   const dates = r === 'dates' ? ED.dates.slice().sort() : [];
   return {
     title: fTitle.value.trim(), notes: fNotes.value.trim(),
@@ -2634,6 +2667,7 @@ function draft() {
     repeat: r, every: NO_EVERY.includes(r) ? null : Math.max(1, Math.min(99, parseInt(fEvery.value, 10) || 1)),
     days: r === 'weekly' ? sortedDays(ED.days) : [],
     dates,
+    hideCal: !ED.showCal,
     createdAt: ex?.createdAt || Date.now()
   };
 }
@@ -2655,13 +2689,19 @@ function renderCal() {
   $('#calClear').hidden = !n;
 }
 function syncEditor() {
+  const one = ED.scope === 'one';
+  $$('#fScope button').forEach(b => b.classList.toggle('on', b.dataset.v === ED.scope));
+  $('#fRepeat').closest('.field').classList.toggle('gone', one);
+  $('#fCal').setAttribute('aria-checked', String(ED.showCal));
+  $('#calHint').textContent = ED.showCal ? 'It appears on the Calendar tab on its days' : 'Only on your lists, not the Calendar tab';
   $$('#fRepeat button').forEach(b => b.classList.toggle('on', b.dataset.v === ED.repeat));
-  const r = ED.repeat;
+  const r = one ? 'none' : ED.repeat;
   $('#everyWrap').hidden = NO_EVERY.includes(r);
   $('#daysWrap').hidden = r !== 'weekly';
   $('#datesWrap').hidden = r !== 'dates';
   $('#dateWrap').hidden = r === 'dates';
   $('#dateLbl').textContent = r === 'sticky' ? 'Starting' : r === 'none' ? 'Date' : 'Starting';
+  if (one) $('#dateWrap').hidden = false;
   if (r === 'weekly' && !ED.days.length) { const P = parseDate(fDate.value || todayKey()); ED.days = [new Date(P.y, P.m, P.d).getDay()]; }
   $$('#fDays button').forEach(b => b.classList.toggle('on', ED.days.includes(+b.dataset.d)));
   if (r === 'dates') renderCal();
@@ -2670,7 +2710,41 @@ function syncEditor() {
   $('#everyUnit').textContent = unit + (n > 1 ? 's' : '');
   const d = draft();
   if (d.repeat !== 'none' && d.repeat !== 'dates' && !d.date) d.date = todayKey();
-  $('#fSummary').textContent = repeatLong(d);
+  if (one) {
+    const moved = fDate.value && fDate.value !== dayKey(ED.occ);
+    $('#fSummary').textContent = `Changes apply only to ${occName(ED.occ)}${moved ? `, and that one moves to ${fmtDateKey(fDate.value)}` : ''}. Every other repeat stays the same.`;
+  } else $('#fSummary').textContent = repeatLong(d);
+  $('#fSave').textContent = !ED.id ? 'Add task' : one ? 'Save this one' : 'Save changes';
+  $('#fDelete').textContent = one ? 'Skip this one' : 'Delete';
+}
+$('#fScope').addEventListener('click', e => {
+  const b = e.target.closest('button[data-v]'); if (!b || b.dataset.v === ED.scope) return;
+  ED.scope = b.dataset.v;
+  const t = S.tasks.get(ED.id);
+  if (ED.scope === 'one') {
+    ED.saved = { date: fDate.value, time: fTime.value };
+    fDate.value = dayKey(ED.occ);
+    if (t && t.repeat === 'hourly') { const o = new Date(ED.occ); fTime.value = `${pad(o.getHours())}:${pad(o.getMinutes())}`; }
+    $('#dateLbl').textContent = 'Date';
+  } else if (ED.saved) { fDate.value = ED.saved.date; fTime.value = ED.saved.time; }
+  syncEditor(); Snd.tap();
+  anim(b, [{ transform: 'scale(.85)' }, { transform: 'none' }], { duration: D.b, easing: SPRING.b() });
+  anim($('#fSummary').parentElement, [{ opacity: .3, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: D.s, easing: SPRING.s() });
+});
+$('#fCal').addEventListener('click', () => { ED.showCal = !ED.showCal; syncEditor(); Snd.tap(); vibrate(6); });
+
+const occName = ms => { const f = fmtDay(ms); return /^(Today|Tomorrow|Yesterday)$/.test(f) ? f.toLowerCase() : fmtDateKey(dayKey(ms)); };
+// Moves the repeat past one occurrence (used when that one is edited on its own or skipped).
+function skipOccurrence(ex, occ) {
+  const key = skipKey(ex, occ);
+  const upd = { skips: arrayUnion(key), updatedAt: Date.now() };
+  if (ex.nextDue != null && skipKey(ex, ex.nextDue) === key) {
+    const tmp = { ...ex, skips: [...(ex.skips || []), key] };
+    const next = nextOccurrence(tmp, Math.max(ex.nextDue, startOfDay(Date.now()) - 1));
+    upd.nextDue = next;
+    if (next == null) Object.assign(upd, { done: true, completedAt: Date.now() });
+  }
+  w(updateDoc(doc(S.refs.tasks, ex.id), upd));
 }
 $('#fRepeat').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
@@ -2702,6 +2776,14 @@ $$('.stepper').forEach(b => b.addEventListener('click', () => { fEvery.value = M
 $('#fTimeClear').addEventListener('click', () => { fTime.value = ''; syncEditor(); });
 $('#fDelete').addEventListener('click', async () => {
   const id = ED.id; if (!id) return;
+  if (ED.scope === 'one') {
+    const ex = S.tasks.get(id), occ = ED.occ; if (!ex) return;
+    const ok = await confirmBox(`Skip ${occName(occ)}?`, `Only ${occName(occ)}'s "${ex.title}" is removed. Every other repeat stays.`, 'Skip it');
+    if (!ok) return;
+    skipOccurrence(ex, occ);
+    closeSheet('#editSheet'); toast('Skipped that one.'); Snd.undo();
+    return;
+  }
   closeSheet('#editSheet');
   const row = document.querySelector(`.row[data-id="${id}"]`);
   setTimeout(() => deleteTask(id, row), 200);
@@ -2715,6 +2797,17 @@ $('#taskForm').addEventListener('submit', e => {
   if (d.repeat === 'dates' && !d.dates.length) { shake($('#cal')); toast('Pick at least one day on the calendar.'); return; }
   if (d.repeat !== 'none' && d.repeat !== 'dates' && !d.date) d.date = todayKey();
   const now = Date.now(), ex = ED.id ? S.tasks.get(ED.id) : null;
+  if (ex && ED.scope === 'one' && ED.occ != null) {
+    // Split this one repeat off into its own task, and have the repeat skip that day.
+    const one = { title: d.title, notes: d.notes, date: fDate.value || dayKey(ED.occ), time: fTime.value || null, repeat: 'none', every: null, days: [], dates: [],
+      hideCal: d.hideCal, seriesId: ex.id, done: false, timesDone: 0, timeSpent: 0, createdAt: now, updatedAt: now };
+    one.nextDue = initialDue(one, now);
+    skipOccurrence(ex, ED.occ);
+    w(setDoc(doc(S.refs.tasks), one));
+    toast(`Saved. Only ${occName(ED.occ)} changed.`);
+    Snd.tap(); vibrate(8); closeSheet('#editSheet');
+    return;
+  }
   const schedChanged = !ex || ['date', 'time', 'repeat', 'every'].some(k => (ex[k] ?? null) !== (d[k] ?? null))
     || JSON.stringify(sortedDays(ex.days)) !== JSON.stringify(d.days)
     || JSON.stringify((ex.dates || []).slice().sort()) !== JSON.stringify(d.dates);
@@ -3049,4 +3142,4 @@ document.getElementById('bootReload').addEventListener('click', function () { lo
 addEventListener('online', function () { if (!window.__dtLoaded) location.reload(); });
 </script>
 </body>
-</html>v
+</html>
